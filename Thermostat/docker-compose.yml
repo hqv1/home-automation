@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  thermostat.api:
+    image: thermostat.api
+    build:
+      context: ./Thermostat.Api
+      dockerfile: Dockerfile
