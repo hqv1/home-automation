@@ -2,23 +2,34 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Serilog;
-using Serilog.Formatting.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Hqv.Thermostat.Api
 {
     public class Startup
     {
+        public static IConfigurationRoot Configuration;
+
         public Startup(IHostingEnvironment env)
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.File("log\\global_logs.json")
+                .MinimumLevel.Error()
+                .WriteTo.File("log\\global_logs.json")                
                 .CreateLogger();
+
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appSettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -55,6 +66,8 @@ namespace Hqv.Thermostat.Api
             {
                 c.SwaggerDoc("v1", new Info { Title = "Web Api Pattern Core", Version = "v1" });
             });
+
+            Ioc.Register(services,Configuration);            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,9 +90,6 @@ namespace Hqv.Thermostat.Api
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-
-            Log.Logger.Error("Hi");
-            Log.Logger.Error("Hello {Person}", new {name = "Bob"});
         }
     }
 }

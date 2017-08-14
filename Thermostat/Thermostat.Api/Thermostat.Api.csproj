@@ -8,10 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="log\**" />
+    <Content Remove="log\**" />
+    <EmbeddedResource Remove="log\**" />
+    <None Remove="log\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="7.1.1" />
+    <PackageReference Include="Hqv.CSharp.Common" Version="0.2.6" />
+    <PackageReference Include="Hqv.CSharp.Common.Audit.Logging" Version="0.2.5" />
+    <PackageReference Include="Hqv.CSharp.Common.Logging.Serilog" Version="0.2.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
