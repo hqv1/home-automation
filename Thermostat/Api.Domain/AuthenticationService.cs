@@ -71,7 +71,7 @@ namespace Hqv.Thermostat.Api.Domain
             }
 
             await _ecobeeAuthenticator.GetBearerToken(client);
-            await _clientRepository.UpdateAuthentication(client);
+            await _clientRepository.UpdateAuthentication(client, _request.CorrelationId);
             _response.BearerToken = client.Authentication.AccessToken;
             await _eventLogRepository.Add(new EventLog("Client", Convert.ToString(client.ClientId), "Authenticated",
                 DateTime.Now, _request.CorrelationId, entityObject: _response.BearerToken));

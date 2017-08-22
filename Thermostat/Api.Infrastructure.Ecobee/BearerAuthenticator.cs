@@ -21,16 +21,15 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
         private readonly Settings _settings;
 
         public class Settings
-        {
-            //private const string BaseUri = "https://api.ecobee.com";
-            //private const string AuthorizationUri = "authorize";
-            //private const string TokenUri = "token";
-
+        {         
             public Settings(string baseUri, string authorizationUri, string tokenUri)
             {
                 BaseUri = baseUri;
                 AuthorizationUri = authorizationUri;
                 TokenUri = tokenUri;
+
+                AccessTokenExpirationFuzzyInSeconds = 300;
+                RefreshTokenExpirationFuzzyInMonths = 3;
 
                 Validator.Validate<Settings, SettingsValidator>(this);
             }
@@ -38,6 +37,9 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             public string BaseUri { get; }
             public string AuthorizationUri { get; }
             public string TokenUri { get; }
+
+            public int AccessTokenExpirationFuzzyInSeconds { get; }
+            public int RefreshTokenExpirationFuzzyInMonths { get; }
         }
 
         private class SettingsValidator : AbstractValidator<Settings>
@@ -47,6 +49,8 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 RuleFor(x => x.BaseUri).NotEmpty();
                 RuleFor(x => x.AuthorizationUri).NotEmpty();
                 RuleFor(x => x.TokenUri).NotEmpty();
+                RuleFor(x => x.AccessTokenExpirationFuzzyInSeconds).GreaterThanOrEqualTo(0);
+                RuleFor(x => x.RefreshTokenExpirationFuzzyInMonths).GreaterThanOrEqualTo(0);
             }
         }
 
@@ -60,12 +64,11 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             var authentication = client.Authentication;
             if (IsValidRefreshToken(authentication))
             {              
-                await GetTokenUsingRefreshToken(authentication);
+                await GetAccessTokenUsingRefreshToken(authentication);
             }
             else
             {
-                throw new HqvException("Refresh token has expired. Need to get new codes");
-                //await GetTokensUsingPin(authentication);
+                await GetTokensUsingRefreshToken(authentication);
             }
         }
       
@@ -75,12 +78,12 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                    authentication.RefreshTokenExpiration > DateTime.Now;
         }
 
-        private async Task GetTokensUsingPin(ClientAuthentication authentication)
+        public async Task GetAccessTokenUsingRefreshToken(ClientAuthentication authentication)
         {
             var parameters = new Dictionary<string, string>()
             {
-                {"grant_type", "ecobeePin"},
-                {"code", authentication.AppAuthorizationCode },
+                {"grant_type", "refresh_token"},
+                {"refresh_token", authentication.RefreshToken },
                 {"client_id", authentication.AppApiKey }
             };
             var uriBuilder = new UriBuilder(_settings.BaseUri);
@@ -97,7 +100,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
             catch (Exception ex)
             {
-                var exception = new HqvException("Getting token using PIN failed.", ex);
+                var exception = new HqvException("Getting access token using refresh tokens failed.", ex);
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 throw exception;
@@ -105,7 +108,8 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 
             if (!response.IsSuccessStatusCode)
             {
-                var exception = new HqvException($"Getting token using PIN failed with error code {response.StatusCode}");
+                var exception =
+                    new HqvException($"Getting access token using refresh tokens failed with error code {response.StatusCode}");
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
@@ -116,17 +120,13 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
                 dynamic json = JsonConvert.DeserializeObject(responseContent);
-
-                authentication.SetRefreshToken((string) json.refresh_token,
-                    DateTime.Now.AddYears(1).AddMinutes(-1));
-
-                var expiresInSeconds = (int) json.expires_in - 30;
-                authentication.SetAccessToken((string) json.access_token,
+                var expiresInSeconds = (int)json.expires_in - _settings.AccessTokenExpirationFuzzyInSeconds;
+                authentication.SetAccessToken((string)json.access_token,
                     DateTime.Now.AddSeconds(expiresInSeconds));
             }
             catch (Exception ex)
             {
-                var exception = new HqvException($"Unable to parse result from Ecobee for getting token using PIN", ex);
+                var exception = new HqvException($"Unable to parse result from Ecobee for getting token using refresh tokens", ex);
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
@@ -134,7 +134,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
         }
 
-        public async Task GetTokenUsingRefreshToken(ClientAuthentication authentication)
+        public async Task GetTokensUsingRefreshToken(ClientAuthentication authentication)
         {
             var parameters = new Dictionary<string, string>()
             {
@@ -156,7 +156,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
             catch (Exception ex)
             {
-                var exception = new HqvException("Getting token using refresh tokens failed.", ex);
+                var exception = new HqvException("Getting tokens using refresh tokens failed.", ex);
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 throw exception;
@@ -165,7 +165,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             if (!response.IsSuccessStatusCode)
             {
                 var exception =
-                    new HqvException($"Getting token using refresh tokens failed with error code {response.StatusCode}");
+                    new HqvException($"Getting tokens using refresh tokens failed with error code {response.StatusCode}");
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
@@ -176,9 +176,11 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
                 dynamic json = JsonConvert.DeserializeObject(responseContent);
-                var expiresInSeconds = (int)json.expires_in - 30;
+                var expiresInSeconds = (int)json.expires_in - _settings.AccessTokenExpirationFuzzyInSeconds;
                 authentication.SetAccessToken((string)json.access_token,
                     DateTime.Now.AddSeconds(expiresInSeconds));
+                authentication.SetRefreshToken((string)json.refresh_token,
+                    DateTime.Now.AddYears(1).AddMonths(-_settings.RefreshTokenExpirationFuzzyInMonths));
             }
             catch (Exception ex)
             {
@@ -189,6 +191,5 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 throw exception;
             }            
         }
-    }
-    
+    }    
 }

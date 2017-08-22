@@ -11,6 +11,6 @@ namespace Hqv.Thermostat.Api.Domain.Repositories
         /// <returns></returns>       
         Task<Client> GetClient();
 
-        Task UpdateAuthentication(Client client, string correlationId);
+        Task UpdateAuthentication(Client client, string correlationId = null);
     }
 }
