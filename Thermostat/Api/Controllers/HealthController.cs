@@ -2,7 +2,7 @@
 
 namespace Hqv.Thermostat.Api.Controllers
 {
-    [Route("api/health")]
+    [Route("api/thermostat/v1/health")]
     public class HealthController : Controller
     {       
         [HttpGet]

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Hqv.Thermostat.Administrator</AssemblyName>
+    <RootNamespace>Hqv.Thermostat.Administrator</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update=".dockerignore">
+      <DependentUpon>Dockerfile</DependentUpon>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Scripts\hqv-thermostat-create-database.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.6.1" />
+    <PackageReference Include="AutoMapper" Version="6.1.1" />
+    <PackageReference Include="CommandLineParser" Version="2.1.1-beta" />
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="Hqv.CSharp.Common" Version="0.2.6" />
+    <PackageReference Include="Hqv.CSharp.Common.App" Version="0.2.3" />
+    <PackageReference Include="Hqv.CSharp.Common.Audit.Logging" Version="0.2.5" />
+    <PackageReference Include="Hqv.CSharp.Common.Logging.Serilog" Version="0.2.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Serilog" Version="2.5.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="3.2.0" />
+  </ItemGroup>
+
+</Project>
