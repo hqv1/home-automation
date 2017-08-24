@@ -7,13 +7,13 @@ using Hqv.CSharp.Common.Exceptions;
 using Hqv.CSharp.Common.Validations;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
+using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
 using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 {
     /// <summary>
     /// https://www.ecobee.com/home/developer/api/examples/ex1.shtml
-    /// 
     /// 
     /// </summary>
     public class BearerAuthenticator : IEcobeeAuthenticator
@@ -22,10 +22,9 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 
         public class Settings
         {         
-            public Settings(string baseUri, string authorizationUri, string tokenUri)
+            public Settings(string baseUri, string tokenUri)
             {
                 BaseUri = baseUri;
-                AuthorizationUri = authorizationUri;
                 TokenUri = tokenUri;
 
                 AccessTokenExpirationFuzzyInSeconds = 300;
@@ -35,7 +34,6 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
 
             public string BaseUri { get; }
-            public string AuthorizationUri { get; }
             public string TokenUri { get; }
 
             public int AccessTokenExpirationFuzzyInSeconds { get; }
@@ -47,7 +45,6 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             public SettingsValidator()
             {
                 RuleFor(x => x.BaseUri).NotEmpty();
-                RuleFor(x => x.AuthorizationUri).NotEmpty();
                 RuleFor(x => x.TokenUri).NotEmpty();
                 RuleFor(x => x.AccessTokenExpirationFuzzyInSeconds).GreaterThanOrEqualTo(0);
                 RuleFor(x => x.RefreshTokenExpirationFuzzyInMonths).GreaterThanOrEqualTo(0);
@@ -59,40 +56,42 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             _settings = settings;
         }
               
+        /// <summary>
+        /// Getting access token using refresh token isn't working. After a day the refresh token becomes invalid. 
+        /// So we are obtaining both tokens.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public async Task GetBearerToken(Client client)
         {
             var authentication = client.Authentication;
-            if (IsValidRefreshToken(authentication))
-            {              
-                await GetAccessTokenUsingRefreshToken(authentication);
-            }
-            else
-            {
-                await GetTokensUsingRefreshToken(authentication);
-            }
+            await GetTokensUsingRefreshToken(authentication);
         }
       
+        /// <summary>
+        /// Not working. But keeping the code just in case.
+        /// </summary>
         private static bool IsValidRefreshToken(ClientAuthentication authentication)
         {
             return !string.IsNullOrEmpty(authentication.RefreshToken) &&
                    authentication.RefreshTokenExpiration > DateTime.Now;
         }
 
-        public async Task GetAccessTokenUsingRefreshToken(ClientAuthentication authentication)
+        /// <summary>
+        /// Not working. But keeping the code just in case.
+        /// </summary>
+        private async Task GetAccessTokenUsingRefreshToken(ClientAuthentication authentication)
         {
+            var uri = UriHelper.Create(_settings.BaseUri, _settings.TokenUri);
             var parameters = new Dictionary<string, string>()
             {
                 {"grant_type", "refresh_token"},
                 {"refresh_token", authentication.RefreshToken },
                 {"client_id", authentication.AppApiKey }
             };
-            var uriBuilder = new UriBuilder(_settings.BaseUri);
-            uriBuilder.Path += _settings.TokenUri;
-            var uri = uriBuilder.ToString();
-
+            var content = new FormUrlEncodedContent(parameters);            
             var client = new HttpClient();
-            var content = new FormUrlEncodedContent(parameters);
-
+            
             HttpResponseMessage response;
             try
             {
@@ -122,7 +121,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 dynamic json = JsonConvert.DeserializeObject(responseContent);
                 var expiresInSeconds = (int)json.expires_in - _settings.AccessTokenExpirationFuzzyInSeconds;
                 authentication.SetAccessToken((string)json.access_token,
-                    DateTime.Now.AddSeconds(expiresInSeconds));
+                    DateTime.Now.AddSeconds(expiresInSeconds).ToUniversalTime());
             }
             catch (Exception ex)
             {
@@ -134,7 +133,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
         }
 
-        public async Task GetTokensUsingRefreshToken(ClientAuthentication authentication)
+        private async Task GetTokensUsingRefreshToken(ClientAuthentication authentication)
         {
             var parameters = new Dictionary<string, string>()
             {
@@ -142,9 +141,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 {"code", authentication.RefreshToken },
                 {"client_id", authentication.AppApiKey }
             };
-            var uriBuilder = new UriBuilder(_settings.BaseUri);
-            uriBuilder.Path += _settings.TokenUri;
-            var uri = uriBuilder.ToString();
+            var uri = UriHelper.Create(_settings.BaseUri, _settings.TokenUri);           
 
             var client = new HttpClient();
             var content = new FormUrlEncodedContent(parameters);
@@ -178,9 +175,9 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 dynamic json = JsonConvert.DeserializeObject(responseContent);
                 var expiresInSeconds = (int)json.expires_in - _settings.AccessTokenExpirationFuzzyInSeconds;
                 authentication.SetAccessToken((string)json.access_token,
-                    DateTime.Now.AddSeconds(expiresInSeconds));
+                    DateTime.Now.AddSeconds(expiresInSeconds).ToUniversalTime());
                 authentication.SetRefreshToken((string)json.refresh_token,
-                    DateTime.Now.AddYears(1).AddMonths(-_settings.RefreshTokenExpirationFuzzyInMonths));
+                    DateTime.Now.AddYears(1).AddMonths(-_settings.RefreshTokenExpirationFuzzyInMonths).ToUniversalTime());
             }
             catch (Exception ex)
             {

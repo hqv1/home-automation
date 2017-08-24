@@ -23,7 +23,6 @@ namespace Hqv.Thermostat.Api.Infrastructure.Models
                 EventName = entity.EventName,
                 Event = JsonConvert.SerializeObject(entity)
             };
-
             return model;
         }       
     }

@@ -10,6 +10,7 @@
     <PackageReference Include="Dapper" Version="1.50.2" />
     <PackageReference Include="FluentValidation" Version="7.1.1" />
     <PackageReference Include="Hqv.CSharp.Common" Version="0.2.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>

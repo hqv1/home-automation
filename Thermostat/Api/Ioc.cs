@@ -2,7 +2,11 @@
 using Hqv.CSharp.Common.Logging;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Repositories;
+using Hqv.Thermostat.Api.Handlers;
 using Hqv.Thermostat.Api.Infrastructure;
+using Hqv.Thermostat.Api.Infrastructure.Repositories;
+using Hqv.Thermostat.Api.Messages;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -20,6 +24,13 @@ namespace Hqv.Thermostat.Api
             RegisterServices(services, configuration);
             RegisterInfrastructure(services, configuration);
             RegisterRepositories(services, configuration);
+
+            //services.AddScoped<SingleInstanceFactory>(p => t => p.GetRequiredService(t));
+
+            //services.Scan(scan => scan
+            //    .FromAssembliesOf(typeof(IMediator), typeof(MyHandler.Handler))
+            //    .AddClasses()
+            //    .AsImplementedInterfaces());
         }
 
         private static void RegisterLogging(IServiceCollection services, IConfiguration configuration)
@@ -50,8 +61,7 @@ namespace Hqv.Thermostat.Api
 
         private static void RegisterServices(IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped(provider => new AuthenticationService.Settings());         
+            services.AddScoped<IAuthenticationService, AuthenticationService>();     
         }
 
         private static void RegisterInfrastructure(IServiceCollection services, IConfiguration configuration)
@@ -59,8 +69,12 @@ namespace Hqv.Thermostat.Api
             services.AddScoped<IEcobeeAuthenticator, Infrastructure.Ecobee.BearerAuthenticator>();
             services.AddScoped(provider => new Infrastructure.Ecobee.BearerAuthenticator.Settings(
                 configuration["ecobee:base-uri"],
-                configuration["ecobee:authorization-uri"],
                 configuration["ecobee:token-uri"]));
+
+            services.AddScoped<IThermostatProvider, Infrastructure.Ecobee.ThermostatProvider>();
+            services.AddScoped(provider => new Infrastructure.Ecobee.ThermostatProvider.Settings(
+                configuration["ecobee:base-uri"], 
+                configuration["ecobee:thermostat-uri"]));
         }
 
         private static void RegisterRepositories(IServiceCollection services, IConfiguration configuration)

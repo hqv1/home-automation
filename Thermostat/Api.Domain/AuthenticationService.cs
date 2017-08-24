@@ -13,27 +13,20 @@ namespace Hqv.Thermostat.Api.Domain
         private readonly IClientRepository _clientRepository;
         private readonly IEventLogRepository _eventLogRepository;
         private readonly IHqvLogger _logger;
-        private readonly Settings _settings;
         private AuthenticateRequest _request;
         private AuthenticateResponse _response;
-
-        public class Settings
-        {
-            
-        }
+        
 
         public AuthenticationService(
             IEcobeeAuthenticator ecobeeAuthenticator, 
             IClientRepository clientRepository,             
             IEventLogRepository eventLogRepository,
-            IHqvLogger logger,
-            Settings settings)
+            IHqvLogger logger)
         {
             _ecobeeAuthenticator = ecobeeAuthenticator;
             _clientRepository = clientRepository;
             _eventLogRepository = eventLogRepository;
             _logger = logger;
-            _settings = settings;
         }
 
         public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest request)
@@ -64,7 +57,7 @@ namespace Hqv.Thermostat.Api.Domain
 
             var client = await _clientRepository.GetClient();
             _response.ClientId = client.ClientId;
-            if (client.Authentication.AccessTokenExpiration > DateTime.Now)
+            if (client.Authentication.AccessTokenExpiration > DateTime.Now.ToUniversalTime())
             {
                 _response.BearerToken = client.Authentication.AccessToken;
                 return;

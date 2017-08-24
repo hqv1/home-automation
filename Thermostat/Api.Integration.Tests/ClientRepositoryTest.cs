@@ -1,13 +1,14 @@
 using System;
 using FluentAssertions;
 using Hqv.Thermostat.Api.Infrastructure;
+using Hqv.Thermostat.Api.Infrastructure.Repositories;
 using Xunit;
 
 namespace Hqv.Thermostat.Api.Integration.Tests
 {
     public class ClientRepositoryTest
     {
-        const string ConnectionString = "Server=tcp:127.0.0.1,5433;Initial Catalog=Hqv.Thermostat;User Id=sa;Password=Pass@word";
+        private const string ConnectionString = "Server=tcp:127.0.0.1,5433;Initial Catalog=Hqv.Thermostat;User Id=sa;Password=Pass@word";
         private readonly ClientRepository _clientRepository;
 
         public ClientRepositoryTest()

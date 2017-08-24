@@ -5,7 +5,7 @@ using Dapper.Contrib.Extensions;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
 
-namespace Hqv.Thermostat.Api.Infrastructure
+namespace Hqv.Thermostat.Api.Infrastructure.Repositories
 {
     public class EventLogRepository : IEventLogRepository, IEventLogDatabaseRepository
     {

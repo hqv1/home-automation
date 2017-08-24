@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Hqv.CSharp.Common.Exceptions;
 using Hqv.Thermostat.Api.Domain;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +26,7 @@ namespace Hqv.Thermostat.Api.Controllers
             if (response.IsValid)           
                 return NoContent();
 
-            return StatusCode(500, "An unexpected fault happened. Try again later");
+            throw new HqvException();
         }
     }
 }

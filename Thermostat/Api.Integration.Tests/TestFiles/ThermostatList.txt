@@ -1,0 +1,52 @@
+﻿{
+  "page": {
+    "page": 1,
+    "totalPages": 1,
+    "pageSize": 1,
+    "total": 1
+  },
+  "thermostatList": [
+    {
+      "identifier": "311099783979",
+      "name": "Home",
+      "thermostatRev": "170822112803",
+      "isRegistered": true,
+      "modelNumber": "athenaSmart",
+      "brand": "ecobee",
+      "features": "HomeKit",
+      "lastModified": "2017-08-22 11:28:03",
+      "thermostatTime": "2017-08-22 16:04:26",
+      "utcTime": "2017-08-22 23:04:26",
+      "runtime": {
+        "runtimeRev": "170822230323",
+        "connected": true,
+        "firstConnected": "2016-11-30 20:58:40",
+        "connectDateTime": "2017-08-22 03:19:14",
+        "disconnectDateTime": "2017-08-18 22:42:49",
+        "lastModified": "2017-08-22 23:03:23",
+        "lastStatusModified": "2017-08-22 23:03:23",
+        "runtimeDate": "2017-08-22",
+        "runtimeInterval": 275,
+        "actualTemperature": 775,
+        "actualHumidity": 61,
+        "desiredHeat": 720,
+        "desiredCool": 770,
+        "desiredHumidity": 36,
+        "desiredDehumidity": 60,
+        "desiredFanMode": "auto",
+        "desiredHeatRange": [
+          450,
+          790
+        ],
+        "desiredCoolRange": [
+          650,
+          920
+        ]
+      }
+    }
+  ],
+  "status": {
+    "code": 0,
+    "message": ""
+  }
+}

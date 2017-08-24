@@ -1,4 +1,6 @@
 ﻿using FluentValidation.AspNetCore;
+using Hqv.Thermostat.Api.Handlers;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +63,8 @@ namespace Hqv.Thermostat.Api
                 .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>())
                 ;
             ;
+            
+            services.AddMediatR(typeof(GetThermostatReadingHandlerClass)); // Add MediatR
 
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
