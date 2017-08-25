@@ -23,5 +23,5 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared
             uriBuilder.Query = queryString;
             return uriBuilder.ToString();
         }
-    }  
+    }
 }

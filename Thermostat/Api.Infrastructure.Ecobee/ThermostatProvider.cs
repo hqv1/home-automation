@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using FluentValidation;
-using Hqv.CSharp.Common.Exceptions;
 using Hqv.CSharp.Common.Validations;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers;
@@ -45,47 +42,16 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
         }
 
         public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(string bearerToken)
-        {                      
-            var queryParameters = CreateQueryParameters();
-            var uri = UriHelper.Create(_settings.BaseUri, _settings.ThermostatUri, queryParameters);           
+        {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-
-            HttpResponseMessage response;
-            try
-            {
-                response = await client.GetAsync(uri);
-            }
-            catch (Exception ex)
-            {
-                var exception = new HqvException("Getting thermostats failed.", ex);
-                exception.Data["uri"] = uri;               
-                throw exception;
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception =
-                    new HqvException($"Getting thermostats failed with error code {response.StatusCode}");
-                exception.Data["uri"] = uri;
-                exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
-                throw exception;
-            }
-
-            try
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                dynamic json = JsonConvert.DeserializeObject(responseContent);
-                var thermostats = ThermostatListParser.Parse(json);
-                return thermostats;
-            }
-            catch (Exception ex)
-            {
-                var exception = new HqvException("Unable to parse result from Ecobee for getting thermostat using refresh tokens", ex);
-                exception.Data["uri"] = uri;               
-                exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
-                throw exception;
-            }
+            var thermostats = await client.GetAsyncParsed<IEnumerable<Domain.Entities.Thermostat>>(
+                baseUri: _settings.BaseUri,
+                relativeUri: _settings.ThermostatUri,
+                queryParameters: CreateQueryParameters(),
+                bearerToken: bearerToken, 
+                parser: json => ThermostatListParser.Parse(json)               
+            );
+            return thermostats;
         }
 
         private static ICollection<KeyValuePair<string, string>> CreateQueryParameters()

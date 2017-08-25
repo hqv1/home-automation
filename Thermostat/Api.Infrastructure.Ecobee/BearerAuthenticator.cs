@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using Hqv.CSharp.Common.Exceptions;
@@ -153,7 +154,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
             catch (Exception ex)
             {
-                var exception = new HqvException("Getting tokens using refresh tokens failed.", ex);
+                var exception = new HqvException($"{MethodBase.GetCurrentMethod().Name} failed.", ex);
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 throw exception;
@@ -162,7 +163,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             if (!response.IsSuccessStatusCode)
             {
                 var exception =
-                    new HqvException($"Getting tokens using refresh tokens failed with error code {response.StatusCode}");
+                    new HqvException($"{MethodBase.GetCurrentMethod().Name} failed with error code {response.StatusCode}");
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
@@ -181,7 +182,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
             catch (Exception ex)
             {
-                var exception = new HqvException($"Unable to parse result from Ecobee for getting token using refresh tokens", ex);
+                var exception = new HqvException($"Unable to parse result from Ecobee for {MethodBase.GetCurrentMethod().Name}", ex);
                 exception.Data["uri"] = uri;
                 exception.Data["request-content"] = await content.ReadAsStringAsync();
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
