@@ -1,31 +1,55 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Hqv.CSharp.Common.Exceptions;
+using Hqv.Thermostat.Api.Domain.Entities;
+using Hqv.Thermostat.Api.Domain.Repositories;
 using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared
 {
-    public static class HttpClientExtension
+    public class HqvHttpClient : IHqvHttpClient
     {
-        public static async Task<TResult> GetAsyncParsed<TResult>(
-            this HttpClient client,
+        public class Settings
+        {
+            public Settings(bool shouldLogResponse)
+            {
+                ShouldLogResponse = shouldLogResponse;
+            }
+
+            public bool ShouldLogResponse { get; }
+        }
+
+        private readonly IEventLogRepository _eventLogRepository;
+        private readonly Settings _settings;
+
+        private readonly HttpClient _httpClient;
+
+        public HqvHttpClient(IEventLogRepository eventLogRepository, Settings settings)
+        {
+            _eventLogRepository = eventLogRepository;
+            _settings = settings;
+            _httpClient = new HttpClient();
+        }
+
+        public async Task<TResult> GetAsyncWithBearerToken<TResult>(
             string baseUri,
-            string relativeUri,         
+            string relativeUri,
             string bearerToken,
-            Func<dynamic,TResult> parser,
+            Func<dynamic, TResult> parser,
             ICollection<KeyValuePair<string, string>> queryParameters = null,
+            string correlationId = null,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
         {
             var uri = UriHelper.Create(baseUri, relativeUri, queryParameters);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
             HttpResponseMessage response;
             try
             {
-                response = await client.GetAsync(uri);
+                response = await _httpClient.GetAsync(uri);
             }
             catch (Exception ex)
             {
@@ -45,8 +69,13 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared
 
             try
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseContent = await response.Content.ReadAsStringAsync();                
                 dynamic json = JsonConvert.DeserializeObject(responseContent);
+                if (_settings.ShouldLogResponse)
+                {
+                    await _eventLogRepository.Add(new EventLog(
+                        "Ecobee", relativeUri, "ResponseBody", DateTime.UtcNow, correlationId, entityObject: json));
+                }
                 var result = parser(json);
                 return result;
             }
@@ -56,8 +85,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared
                 exception.Data["uri"] = uri;
                 exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
                 throw exception;
-            }           
+            }
         }
-        
     }
 }

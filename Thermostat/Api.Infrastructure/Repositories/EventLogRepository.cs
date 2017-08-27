@@ -34,10 +34,10 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
             }
         }
 
-        public async Task Add(EventLog eventLog, IDbConnection connection, IDbTransaction transaction= null)
+        public async Task Add(EventLog eventLog, IDbConnection connection)
         {
             var model = Models.EventLogModel.ConvertFrom(eventLog);
-            await connection.InsertAsync(model, transaction);
+            await connection.InsertAsync(model);
         }
     }
 }

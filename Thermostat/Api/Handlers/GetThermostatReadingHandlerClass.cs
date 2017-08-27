@@ -6,8 +6,10 @@ using Hqv.CSharp.Common.Logging;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
+using Hqv.Thermostat.Api.Extensions;
 using Hqv.Thermostat.Api.Messages;
 using MediatR;
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace Hqv.Thermostat.Api.Handlers
 {
@@ -33,41 +35,43 @@ namespace Hqv.Thermostat.Api.Handlers
         public async Task<object> Handle(GetThermostatReadingMessage message)
         {
             var correlationId = Guid.NewGuid().ToString();
-            var bearerToken = await GetBearerToken(correlationId);
+            var bearerToken = await _authenticationService.GetBearerToken(correlationId);
 
             IEnumerable<Domain.Entities.Thermostat> thermostats = null;
             try
             {
-                thermostats = (await _thermostatProvider.GetThermostats(bearerToken)).ToList();
-                // ReSharper disable PossibleMultipleEnumeration
-                var model = thermostats.Select(x => new
-                {
-                    Name = x.Name,
-                    Reading = new
-                    {
-                        ReadingDateTime = x.Reading.DateTime,
-                        Temperature = x.Reading.TemperatureInF,
-                        Humidity = x.Reading.Humidity
-                    }
-                });
+                thermostats = (await _thermostatProvider.GetThermostats(bearerToken, correlationId)).ToList();              
+                var model = thermostats.Select(Transform);
+                await StoreDomainEvent(correlationId);
                 return model;
             }
             catch (Exception ex)
             {
                 await StoreExceptionDomainEvent(ex, thermostats, correlationId);
                 throw;
-                // ReSharper restore PossibleMultipleEnumeration
             }
         }
 
-        private async Task<string> GetBearerToken(string correlationId)
+        private static object Transform(Domain.Entities.Thermostat thermostat)
         {
-            var response = await _authenticationService.Authenticate(new AuthenticateRequest(correlationId));
-            if (!response.IsValid)
-                throw response.Errors.FirstOrDefault();
-            return response.BearerToken;
+            return new
+            {
+                Name = thermostat.Name,
+                Reading = new
+                {
+                    ReadingDateTime = thermostat.Reading.DateTime,
+                    Temperature = thermostat.Reading.TemperatureInF,
+                    Humidity = thermostat.Reading.Humidity
+                }
+            };
         }
-        
+
+        private async Task StoreDomainEvent(string correlationId)
+        {
+            await _eventLogRepository.Add(new EventLog("Thermostat", "", "GetReading", DateTime.Now.ToUniversalTime(),
+                correlationId));
+        }
+
         private async Task StoreExceptionDomainEvent(Exception ex, IEnumerable<Domain.Entities.Thermostat> thermostats, string correlationId)
         {
             try

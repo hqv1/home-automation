@@ -12,19 +12,22 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 {
     public class ThermostatProvider : IThermostatProvider
     {
+        private readonly IHqvHttpClient _httpClient;
         private readonly Settings _settings;
 
         public class Settings
         {
-            public Settings(string baseUri, string thermostatUri)
+            public Settings(string baseUri, string thermostatUri, bool storeResponse = false)
             {
                 BaseUri = baseUri;
                 ThermostatUri = thermostatUri;
+                StoreResponse = storeResponse;
                 Validator.Validate<Settings, SettingsValidator>(this);
             }
 
             public string BaseUri { get; }
             public string ThermostatUri { get; }
+            public bool StoreResponse { get; }
         }
 
         private class SettingsValidator : AbstractValidator<Settings>
@@ -36,21 +39,22 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
         }
 
-        public ThermostatProvider(Settings settings)
+        public ThermostatProvider(IHqvHttpClient httpClient, Settings settings)
         {
+            _httpClient = httpClient;
             _settings = settings;
         }
 
-        public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(string bearerToken)
+        public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(string bearerToken, string correlationId = null)
         {
-            var client = new HttpClient();
-            var thermostats = await client.GetAsyncParsed<IEnumerable<Domain.Entities.Thermostat>>(
+            var thermostats = await _httpClient.GetAsyncWithBearerToken(
+                correlationId: correlationId,
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
                 queryParameters: CreateQueryParameters(),
-                bearerToken: bearerToken, 
-                parser: json => ThermostatListParser.Parse(json)               
-            );
+                bearerToken: bearerToken,
+                parser: json => ThermostatListParser.Parse(json));
+
             return thermostats;
         }
 
@@ -62,7 +66,8 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 {
                     selectionType = "registered",
                     selectionMatch = "",
-                    includeRuntime = true
+                    includeRuntime = true,
+                    includeSettings = true //just added
                 }
             };
             var queryParameters = new Dictionary<string, string>()

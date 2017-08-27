@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Dapper;
 using Hqv.CSharp.Common.Exceptions;
 using Hqv.Thermostat.Api.Domain.Entities;
@@ -68,28 +69,25 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
             const string command =
                 @"UPDATE [Client] SET RefreshToken = @RefreshToken, RefreshTokenExpiration = @RefreshTokenExpiration, AccessToken= @AccessToken, AccessTokenExpiration = @AccessTokenExpiration WHERE ClientID = @ClientID";
 
-            using (var connection = new SqlConnection(_settings.ConnectionString))            
+            using (var connection = new SqlConnection(_settings.ConnectionString))
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
+                var result = await connection.ExecuteAsync(command, new
                 {
-                    // ReSharper disable once UnusedVariable
-                    var result = await connection.ExecuteAsync(command, new
-                    {
-                        ClientID = client.ClientId,
-                        RefreshToken = client.Authentication.RefreshToken,
-                        RefreshTokenExpiration = client.Authentication.RefreshTokenExpiration,
-                        AccessToken = client.Authentication.AccessToken,
-                        AccessTokenExpiration = client.Authentication.AccessTokenExpiration
-                    }, transaction);
+                    ClientID = client.ClientId,
+                    RefreshToken = client.Authentication.RefreshToken,
+                    RefreshTokenExpiration = client.Authentication.RefreshTokenExpiration,
+                    AccessToken = client.Authentication.AccessToken,
+                    AccessTokenExpiration = client.Authentication.AccessTokenExpiration
+                });
 
-                    var eventLog = new EventLog("Client", client.ClientId.ToString(), "AuthenticationUpdated", 
-                        DateTime.Now.ToUniversalTime(), correlationId, entityObject:client);
-                    await _eventLogRepository.Add(eventLog, connection, transaction);
+                var eventLog = new EventLog("Client", client.ClientId.ToString(), "AuthenticationUpdated",
+                    DateTime.Now.ToUniversalTime(), correlationId, entityObject: client);
+                await _eventLogRepository.Add(eventLog, connection);
 
-                    transaction.Commit();
-                }                    
+                transaction.Complete();
             }
+          
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Hqv.Thermostat.Api.Infrastructure
 {
     public interface IEventLogDatabaseRepository
     {
-        Task Add(EventLog eventLog, IDbConnection connection, IDbTransaction transaction);
+        Task Add(EventLog eventLog, IDbConnection connection);
     }
 }

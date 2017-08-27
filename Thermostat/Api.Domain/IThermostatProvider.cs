@@ -5,6 +5,6 @@ namespace Hqv.Thermostat.Api.Domain
 {
     public interface IThermostatProvider
     {
-        Task<IEnumerable<Entities.Thermostat>> GetThermostats(string bearerToken);
+        Task<IEnumerable<Entities.Thermostat>> GetThermostats(string bearerToken, string correlationId = null);
     }
 }
