@@ -16,5 +16,7 @@
         public string Model { get; }
 
         public ThermostatReading Reading { get; set; }
+
+        public ThermostatSettings Settings { get; set; }
     }
 }

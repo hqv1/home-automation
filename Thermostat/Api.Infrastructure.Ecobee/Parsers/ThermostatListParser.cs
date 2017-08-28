@@ -18,21 +18,50 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
             {
 
                 var thermostatJson = json.thermostatList[index];
-                var thermostat = new Domain.Entities.Thermostat(
-                    id: Convert.ToString(thermostatJson.identifier) ,
-                    name: Convert.ToString(thermostatJson.name),
-                    brand: Convert.ToString(thermostatJson.brand),
-                    model: Convert.ToString(thermostatJson.modelNumber));
-
-                var readingJson = thermostatJson.runtime;
-                var readingDateTime = DateTime.Parse((string)readingJson.connectDateTime);
-                var temperatureInF = (int) readingJson.actualTemperature;
-                var humidity = (int) readingJson.actualHumidity;
-
-                thermostat.Reading = new ThermostatReading(readingDateTime, temperatureInF, humidity);
+                Domain.Entities.Thermostat thermostat = CreateThermostat(thermostatJson);
+                
+                thermostat.Reading = CreateReading(thermostatJson);
+                thermostat.Settings = CreateSettings(thermostatJson);
                 thermostats.Add(thermostat);
             }
             return thermostats;
+        }
+
+        private static Domain.Entities.Thermostat CreateThermostat(dynamic thermostatJson)
+        {
+            return new Domain.Entities.Thermostat(
+                id: Convert.ToString(thermostatJson.identifier) ,
+                name: Convert.ToString(thermostatJson.name),
+                brand: Convert.ToString(thermostatJson.brand),
+                model: Convert.ToString(thermostatJson.modelNumber));
+        }
+
+        private static ThermostatReading CreateReading(dynamic thermostatJson)
+        {
+            var readingJson = thermostatJson.runtime;
+            var readingDateTime = DateTime.Parse((string)readingJson.connectDateTime);
+            var temperatureInF = (int)readingJson.actualTemperature;
+            var humidity = (int)readingJson.actualHumidity;
+
+            return new ThermostatReading(readingDateTime, temperatureInF, humidity);
+        }
+
+        private static ThermostatSettings CreateSettings(dynamic thermostatJson)
+        {
+            var settingJson = thermostatJson.settings;
+            var hvacMode = (string) settingJson.hvacMode;
+            var heatRangeHigh = (int) settingJson.heatRangeHigh;
+            var heatRangeLow = (int) settingJson.heatRangeLow;
+            var coolRangeHigh = (int) settingJson.coolRangeHigh;
+            var coolRangeLow = (int) settingJson.coolRangeLow;
+
+            var readingJson = thermostatJson.runtime;
+            var desiredHeat = (int) readingJson.desiredHeat;
+            var desiredCool = (int) readingJson.desiredCool;
+
+            return new ThermostatSettings(hvacMode, 
+                desiredHeat, desiredCool,
+                heatRangeHigh, heatRangeLow, coolRangeHigh, coolRangeLow);
         }
     }
 }

@@ -61,7 +61,17 @@ namespace Hqv.Thermostat.Api.Handlers
                 {
                     ReadingDateTime = thermostat.Reading.DateTime,
                     Temperature = thermostat.Reading.TemperatureInF,
-                    Humidity = thermostat.Reading.Humidity
+                    thermostat.Reading.Humidity,
+                },
+                Settings = new
+                {
+                    thermostat.Settings.HvacMode,
+                    thermostat.Settings.DesiredHeat,
+                    thermostat.Settings.DesiredCool,
+                    thermostat.Settings.HeatRangeHigh,
+                    thermostat.Settings.HeatRangeLow,
+                    thermostat.Settings.CoolRangeHigh,
+                    thermostat.Settings.CoolRangeLow
                 }
             };
         }

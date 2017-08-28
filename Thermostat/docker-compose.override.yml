@@ -4,8 +4,6 @@ services:
   thermostat.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - connection-string=Server=sql.data;Database=Hqv.Thermostat;User Id=sa;Password=Pass@word
-      - connection-string-master=Server=sql.data;Database=master;User Id=sa;Password=Pass@word
     ports:
       - "80"
 
