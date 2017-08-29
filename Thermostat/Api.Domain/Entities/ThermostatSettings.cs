@@ -5,7 +5,8 @@
         public ThermostatSettings(
             string hvacMode,
             int desiredHeat, int desiredCool, 
-            int heatRangeHigh, int heatRangeLow, int coolRangeHigh, int coolRangeLow)
+            int heatRangeHigh, int heatRangeLow, int coolRangeHigh, int coolRangeLow, 
+            int heatCoolMinDelta)
         {
             HvacMode = hvacMode;
 
@@ -15,7 +16,9 @@
             HeatRangeHigh = heatRangeHigh;
             HeatRangeLow = heatRangeLow;
             CoolRangeHigh = coolRangeHigh;
-            CoolRangeLow = coolRangeLow;           
+            CoolRangeLow = coolRangeLow;
+
+            HeatCoolMinDelta = heatCoolMinDelta;
         }
 
         public string HvacMode { get; }
@@ -28,5 +31,7 @@
 
         public int CoolRangeHigh { get; }
         public int CoolRangeLow { get; }
+
+        public int HeatCoolMinDelta { get; }
     }
 }

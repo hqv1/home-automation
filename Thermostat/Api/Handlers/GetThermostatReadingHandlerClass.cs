@@ -71,8 +71,17 @@ namespace Hqv.Thermostat.Api.Handlers
                     thermostat.Settings.HeatRangeHigh,
                     thermostat.Settings.HeatRangeLow,
                     thermostat.Settings.CoolRangeHigh,
-                    thermostat.Settings.CoolRangeLow
-                }
+                    thermostat.Settings.CoolRangeLow,
+                    thermostat.Settings.HeatCoolMinDelta
+                },
+                Scenes = thermostat.Scenes.Select(s=> new
+                {
+                    s.Type,
+                    s.Name,
+                    s.Running,
+                    s.CoolHoldTemp,
+                    s.HeatHoldTemp
+                })
             };
         }
 

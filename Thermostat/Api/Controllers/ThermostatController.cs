@@ -22,4 +22,17 @@ namespace Hqv.Thermostat.Api.Controllers
             return Ok(thermostatReadings);
         }      
     }
+
+    [Route("api/thermostat/v1/hold")]
+    public class HoldController : Controller
+    {
+        private readonly IMediator _mediator;
+
+        public HoldController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        
+    }
 }

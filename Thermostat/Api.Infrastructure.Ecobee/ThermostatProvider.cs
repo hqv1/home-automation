@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentValidation;
 using Hqv.CSharp.Common.Validations;
@@ -67,7 +66,8 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                     selectionType = "registered",
                     selectionMatch = "",
                     includeRuntime = true,
-                    includeSettings = true //just added
+                    includeSettings = true,
+                    includeEvents = true
                 }
             };
             var queryParameters = new Dictionary<string, string>()

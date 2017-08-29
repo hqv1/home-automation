@@ -22,6 +22,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
                 
                 thermostat.Reading = CreateReading(thermostatJson);
                 thermostat.Settings = CreateSettings(thermostatJson);
+                thermostat.Scenes = CreateScenes(thermostatJson);
                 thermostats.Add(thermostat);
             }
             return thermostats;
@@ -54,6 +55,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
             var heatRangeLow = (int) settingJson.heatRangeLow;
             var coolRangeHigh = (int) settingJson.coolRangeHigh;
             var coolRangeLow = (int) settingJson.coolRangeLow;
+            var heatCoolMinDelta = (int) settingJson.heatCoolMinDelta;
 
             var readingJson = thermostatJson.runtime;
             var desiredHeat = (int) readingJson.desiredHeat;
@@ -61,7 +63,31 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
 
             return new ThermostatSettings(hvacMode, 
                 desiredHeat, desiredCool,
-                heatRangeHigh, heatRangeLow, coolRangeHigh, coolRangeLow);
+                heatRangeHigh, heatRangeLow, coolRangeHigh, coolRangeLow,
+                heatCoolMinDelta);
+        }
+
+        private static IEnumerable<ThermostatScene> CreateScenes(dynamic thermostatJson)
+        {
+            var scenes = new List<ThermostatScene>();
+            var eventCount = thermostatJson.events.Count;
+            foreach (int index in Enumerable.Range(0, eventCount))
+            {
+                var eventJson = thermostatJson.events[index];
+                scenes.Add(CreateScene(eventJson));
+            }
+            return scenes;
+        }
+
+        private static ThermostatScene CreateScene(dynamic eventJson)
+        {
+            var type = (string) eventJson.type;
+            var name = (string) eventJson.name;
+            var running = Convert.ToBoolean( (string) eventJson.running);
+            var coolHoldTemp = (int) eventJson.coolHoldTemp;
+            var heatHoldTemp = (int) eventJson.heatHoldTemp;
+
+            return new ThermostatScene(type, name, running, coolHoldTemp, heatHoldTemp);
         }
     }
 }

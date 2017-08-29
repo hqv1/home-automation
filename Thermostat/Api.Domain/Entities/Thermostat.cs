@@ -1,4 +1,6 @@
-﻿namespace Hqv.Thermostat.Api.Domain.Entities
+﻿using System.Collections.Generic;
+
+namespace Hqv.Thermostat.Api.Domain.Entities
 {
     public class Thermostat
     {
@@ -18,5 +20,7 @@
         public ThermostatReading Reading { get; set; }
 
         public ThermostatSettings Settings { get; set; }
+
+        public IEnumerable<ThermostatScene> Scenes { get; set; }
     }
 }
