@@ -54,8 +54,8 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
         public async Task AddScene(Scene scene, string bearerToken, string correlationId = null)
         {
             _correlationId = correlationId;
-            var queryParameters = CreateAddSceneQueryParameter();
-            var body = CreateAddSceneBody(scene);
+            var queryParameters = CreateAddSceneQueryParameter(scene);
+            const string body = "";
 
             var response = await _httpClient.PostAsyncJsonWithBearerToken<object>(
                 baseUri: _settings.BaseUri,
@@ -66,15 +66,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 parser: async json => await Parse(json));
         }
 
-        private static ICollection<KeyValuePair<string, string>> CreateAddSceneQueryParameter()
-        {
-            return new Dictionary<string, string>()
-            {
-                {"format", "json"},
-            };
-        }
-
-        private static string CreateAddSceneBody(Scene scene)
+        private static ICollection<KeyValuePair<string, string>> CreateAddSceneQueryParameter(Scene scene)
         {
             var body = new
             {
@@ -97,9 +89,14 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                     }
                 }
             };
-            return JsonConvert.SerializeObject(body);
-        }
 
+            return new Dictionary<string, string>()
+            {
+                {"format", "json"},
+                {"body",  JsonConvert.SerializeObject(body)}
+            };
+        }
+        
         private async Task<EcobeeResponsesModel> Parse(object json)
         {
             if (_settings.StoreResponse)

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Hqv.Thermostat.Api.Models;
 using MediatR;
@@ -5,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hqv.Thermostat.Api.Controllers
 {
-    [Route("api/thermostat/v1/scene")]
+    [Route("api/thermostat/v1/scenes")]
     public class SceneController : Controller
     {
         private readonly IMediator _mediator;
@@ -20,6 +21,12 @@ namespace Hqv.Thermostat.Api.Controllers
         {
             var result = await _mediator.Send(model);
             return Ok(result);
+        }
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> RemoveAllScenes()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Hqv.Thermostat.Api.Models
 {
-    public class ReadingToGet : ModelBase, IRequest<object>
+    public class ReadingToGetModel : ModelBase, IRequest<object>
     {
     }
 }

@@ -11,25 +11,34 @@ using MediatR;
 
 namespace Hqv.Thermostat.Api.Handlers
 {
+    public class RemoveAllScenesHandler : IAsyncRequestHandler<ScenesAllToRemoveModel, object>
+    {
+        public RemoveAllScenesHandler( IAuthenticationService authenticationService)
+        {
+            
+        }
+        public Task<object> Handle(ScenesAllToRemoveModel message)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class AddSceneHandler : IAsyncRequestHandler<SceneToAddModel, object>
     {
         private readonly IAuthenticationService _authenticationService;
-        private readonly IEventLogRepository _eventLogRepository;
-        private readonly IHqvLogger _logger;
+        private readonly IEventLogger _eventLogger;
         private readonly IMapper _mapper;
         private readonly ISceneProvider _sceneProvider;
         private SceneToAddModel _message;
 
         public AddSceneHandler(
-            IAuthenticationService authenticationService, 
-            IEventLogRepository eventLogRepository,
-            IHqvLogger logger,
+            IAuthenticationService authenticationService,
+            IEventLogger eventLogger,
             IMapper mapper,
             ISceneProvider sceneProvider)
         {
             _authenticationService = authenticationService;
-            _eventLogRepository = eventLogRepository;
-            _logger = logger;
+            _eventLogger = eventLogger;
             _mapper = mapper;
             _sceneProvider = sceneProvider;
         }
@@ -55,22 +64,14 @@ namespace Hqv.Thermostat.Api.Handlers
 
         private async Task StoreDomainEvent()
         {
-            await _eventLogRepository.Add(new EventLog("Scene", "", "SeceneAdded",
+            await _eventLogger.AddDomainEvent(new EventLog("Scene", "", "SceneAdded",
                 DateTime.UtcNow, _message.CorrelationId, entityObject: _message));
         }
 
         private async Task StoreExceptionDomainEvent(Exception ex)
         {
-            try
-            {
-                await _eventLogRepository.Add(new EventLog("Scene", "", "SceneAddFailed",
-                    DateTime.UtcNow, _message.CorrelationId, entityObject: _message, additionalMetadata: ex));
-            }
-            catch (Exception exception)
-            {
-                _logger.Error(exception, "Unable to save domain event for correlation {correlationId}", _message.CorrelationId);
-                _logger.Error(ex, "SceneAddFailed with correlation {correlationId}", _message.CorrelationId);
-            }
+            await _eventLogger.AddExceptionDomainEvent(new EventLog("Scene", "", "SceneAddFailed",
+                DateTime.UtcNow, _message.CorrelationId, entityObject: _message, additionalMetadata: ex));
         }
     }
 }

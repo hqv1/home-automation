@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hqv.Thermostat.Api.Controllers
 {
-    [Route("api/thermostat/v1/thermostat/")]
+    [Route("api/thermostat/v1/thermostats/")]
     public class ThermostatController : Controller
     {
         private readonly IMediator _mediator;
@@ -16,7 +16,7 @@ namespace Hqv.Thermostat.Api.Controllers
         }
 
         [HttpGet("readings")]
-        public async Task<IActionResult> GetReadings(ReadingToGet model)
+        public async Task<IActionResult> GetReadings(ReadingToGetModel model)
         {           
             var thermostatReadings = await _mediator.Send(model);
             return Ok(thermostatReadings);

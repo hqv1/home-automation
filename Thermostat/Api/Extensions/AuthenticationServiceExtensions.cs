@@ -4,14 +4,15 @@ using Hqv.Thermostat.Api.Domain;
 
 namespace Hqv.Thermostat.Api.Extensions
 {
-    public static class AuthenticationServiceExtension
+    public static class AuthenticationServiceExtensions
     {
         public static async Task<string> GetBearerToken(this IAuthenticationService authenticationService,
             string correlationId = null)
         {
             var response = await authenticationService.Authenticate(new AuthenticateRequest(correlationId));
             if (!response.IsValid)
-                throw response.Errors.FirstOrDefault();
+                // ReSharper disable once PossibleNullReferenceException
+                throw response.Errors.FirstOrDefault(); // Should always have an exception
             return response.BearerToken;
         }
     }

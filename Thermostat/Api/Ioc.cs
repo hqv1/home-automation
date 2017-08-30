@@ -18,7 +18,8 @@ namespace Hqv.Thermostat.Api
         public static void Register(IServiceCollection services, IConfigurationRoot configuration)
         {
             RegisterLogging(services, configuration);
-            RegisterServices(services, configuration);
+            RegisterDomainObjects(services);
+            RegisterServices(services);
             RegisterInfrastructure(services, configuration);
             RegisterRepositories(services, configuration);
             
@@ -50,7 +51,12 @@ namespace Hqv.Thermostat.Api
             );
         }
 
-        private static void RegisterServices(IServiceCollection services, IConfigurationRoot configuration)
+        private static void RegisterDomainObjects(IServiceCollection services)
+        {
+            services.AddScoped<IEventLogger, EventLogger>();
+        }
+
+        private static void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();     
         }
