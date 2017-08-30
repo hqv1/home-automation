@@ -15,9 +15,9 @@ namespace Hqv.Thermostat.Api.Integration.Tests.Ecobee
 
         public ThermostatProviderTest()
         {
-            IHqvHttpClient client = new HqvHttpClient(null, new HqvHttpClient.Settings(false));
-            var settings = new ThermostatProvider.Settings(BaseUri, ThermostatUri);
-            _thermostatProvider = new ThermostatProvider(client, settings);
+            IHqvHttpClient client = new HqvHttpClient();
+            var settings = new ThermostatProvider.Settings(BaseUri, ThermostatUri, storeResponse:false);
+            _thermostatProvider = new ThermostatProvider(null, client, settings);
         }
 
         [Fact]

@@ -58,18 +58,23 @@ namespace Hqv.Thermostat.Api
         private static void RegisterInfrastructure(IServiceCollection services, IConfiguration configuration)
         {            
             services.AddScoped<Infrastructure.Ecobee.Shared.IHqvHttpClient, Infrastructure.Ecobee.Shared.HqvHttpClient>();
-            services.AddScoped(provider => new Infrastructure.Ecobee.Shared.HqvHttpClient.Settings(
-                Convert.ToBoolean(configuration["ecobee:should-log-result"])));
 
             services.AddScoped<IEcobeeAuthenticator, Infrastructure.Ecobee.BearerAuthenticator>();
             services.AddScoped(provider => new Infrastructure.Ecobee.BearerAuthenticator.Settings(
                 configuration["ecobee:base-uri"],
                 configuration["ecobee:token-uri"]));
 
+            services.AddScoped<ISceneProvider, Infrastructure.Ecobee.SceneProvider>();
+            services.AddScoped(provider => new Infrastructure.Ecobee.SceneProvider.Settings(
+                configuration["ecobee:base-uri"],
+                configuration["ecobee:thermostat-uri"],
+                Convert.ToBoolean(configuration["ecobee:should-log-result"])));
+
             services.AddScoped<IThermostatProvider, Infrastructure.Ecobee.ThermostatProvider>();
             services.AddScoped(provider => new Infrastructure.Ecobee.ThermostatProvider.Settings(
                 configuration["ecobee:base-uri"], 
-                configuration["ecobee:thermostat-uri"]));
+                configuration["ecobee:thermostat-uri"],
+                Convert.ToBoolean(configuration["ecobee:should-log-result"])));
         }
 
         private static void RegisterRepositories(IServiceCollection services, IConfiguration configuration)

@@ -1,17 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared
 {
     public interface IHqvHttpClient
     {
-        System.Threading.Tasks.Task<TResult> GetAsyncWithBearerToken<TResult>(
-            string baseUri, 
+        Task<TResult> GetAsyncWithBearerToken<TResult>(
+            string baseUri, string relativeUri, 
+            string bearerToken,
+            Func<object, Task<TResult>> parser, 
+            ICollection<KeyValuePair<string, string>> queryParameters = null);
+
+        Task<TResult> PostAsyncJsonWithBearerToken<TResult>(
+            string baseUri,
             string relativeUri,
             string bearerToken,
-            System.Func<dynamic, TResult> parser,
-            ICollection<KeyValuePair<string, string>> queryParameters = null, 
-            string correlationId = null,
-            [CallerMemberName] string memberName = "");
+            string body,
+            Func<object, Task<TResult>> parser,
+            ICollection<KeyValuePair<string, string>> queryParameters = null);
     }
 }

@@ -7,20 +7,21 @@ using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
 using Hqv.Thermostat.Api.Extensions;
-using Hqv.Thermostat.Api.Messages;
+using Hqv.Thermostat.Api.Models;
 using MediatR;
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace Hqv.Thermostat.Api.Handlers
 {
-    public class GetThermostatReadingHandlerClass : IAsyncRequestHandler<GetThermostatReadingMessage, object>
+    public class GetThermostatReadingHandler : IAsyncRequestHandler<ReadingToGet, object>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IEventLogRepository _eventLogRepository;
         private readonly IHqvLogger _logger;
         private readonly IThermostatProvider _thermostatProvider;
+        private ReadingToGet _message;
 
-        public GetThermostatReadingHandlerClass(
+        public GetThermostatReadingHandler(
             IAuthenticationService authenticationService,
             IEventLogRepository eventLogRepository,
             IHqvLogger logger,
@@ -32,30 +33,31 @@ namespace Hqv.Thermostat.Api.Handlers
             _thermostatProvider = thermostatProvider;
         }
 
-        public async Task<object> Handle(GetThermostatReadingMessage message)
+        public async Task<object> Handle(ReadingToGet message)
         {
-            var correlationId = Guid.NewGuid().ToString();
-            var bearerToken = await _authenticationService.GetBearerToken(correlationId);
+            _message = message;
+            var bearerToken = await _authenticationService.GetBearerToken(message.CorrelationId);
 
             IEnumerable<Domain.Entities.Thermostat> thermostats = null;
             try
             {
-                thermostats = (await _thermostatProvider.GetThermostats(bearerToken, correlationId)).ToList();              
+                thermostats = (await _thermostatProvider.GetThermostats(bearerToken, message.CorrelationId)).ToList();              
                 var model = thermostats.Select(Transform);
-                await StoreDomainEvent(correlationId);
+                await StoreDomainEvent();
                 return model;
             }
             catch (Exception ex)
             {
-                await StoreExceptionDomainEvent(ex, thermostats, correlationId);
+                await StoreExceptionDomainEvent(ex, thermostats);
                 throw;
             }
         }
 
-        private static object Transform(Domain.Entities.Thermostat thermostat)
+        private object Transform(Domain.Entities.Thermostat thermostat)
         {
             return new
             {
+                CorrelationId = _message.CorrelationId,
                 Name = thermostat.Name,
                 Reading = new
                 {
@@ -85,23 +87,23 @@ namespace Hqv.Thermostat.Api.Handlers
             };
         }
 
-        private async Task StoreDomainEvent(string correlationId)
+        private async Task StoreDomainEvent()
         {
-            await _eventLogRepository.Add(new EventLog("Thermostat", "", "GetReading", DateTime.Now.ToUniversalTime(),
-                correlationId));
+            await _eventLogRepository.Add(new EventLog("Thermostat", "", "GotReading", DateTime.Now.ToUniversalTime(),
+                _message.CorrelationId));
         }
 
-        private async Task StoreExceptionDomainEvent(Exception ex, IEnumerable<Domain.Entities.Thermostat> thermostats, string correlationId)
+        private async Task StoreExceptionDomainEvent(Exception ex, IEnumerable<Domain.Entities.Thermostat> thermostats)
         {
             try
             {
                 await _eventLogRepository.Add(new EventLog("Thermostat", "", "GetReadingFailed",
-                    DateTime.Now, correlationId, entityObject: thermostats, additionalMetadata: ex));
+                    DateTime.Now, _message.CorrelationId, entityObject: thermostats, additionalMetadata: ex));
             }
             catch (Exception exception)
             {
-                _logger.Error(exception, "Unable to save domain event for correlation {correlationId}", correlationId);
-                _logger.Error(ex, "GetReadingFailed with correlation {correlationId}", correlationId);
+                _logger.Error(exception, "Unable to save domain event for correlation {correlationId}", _message.CorrelationId);
+                _logger.Error(ex, "GetReadingFailed with correlation {correlationId}", _message.CorrelationId);
             }
         }
     }

@@ -6,13 +6,14 @@ using Hqv.CSharp.Common.Validations;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
+using Hqv.Thermostat.Api.Infrastructure.Ecobee.Models;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
 using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 {
-    public class ThermostatProvider : IThermostatProvider
+    public class SceneProvider : ISceneProvider
     {
         private readonly IEventLogRepository _eventLogRepository;
         private readonly IHqvHttpClient _httpClient;
@@ -21,7 +22,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 
         public class Settings
         {
-            public Settings(string baseUri, string thermostatUri, bool storeResponse)
+            public Settings(string baseUri, string thermostatUri, bool storeResponse = false)
             {
                 BaseUri = baseUri;
                 ThermostatUri = thermostatUri;
@@ -43,57 +44,75 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             }
         }
 
-        public ThermostatProvider(IEventLogRepository eventLogRepository, IHqvHttpClient httpClient, Settings settings)
+        public SceneProvider(IEventLogRepository eventLogRepository, IHqvHttpClient httpClient, Settings settings)
         {
             _eventLogRepository = eventLogRepository;
             _httpClient = httpClient;
             _settings = settings;
         }
 
-        public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(string bearerToken, string correlationId = null)
+        public async Task AddScene(Scene scene, string bearerToken, string correlationId = null)
         {
             _correlationId = correlationId;
-            var thermostats = await _httpClient.GetAsyncWithBearerToken(
+            var queryParameters = CreateAddSceneQueryParameter();
+            var body = CreateAddSceneBody(scene);
+
+            var response = await _httpClient.PostAsyncJsonWithBearerToken<object>(
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
-                queryParameters: CreateQueryParameters(),
+                queryParameters: queryParameters,
                 bearerToken: bearerToken,
+                body: body,
                 parser: async json => await Parse(json));
-
-            return thermostats;
         }
 
-        private static ICollection<KeyValuePair<string, string>> CreateQueryParameters()
+        private static ICollection<KeyValuePair<string, string>> CreateAddSceneQueryParameter()
+        {
+            return new Dictionary<string, string>()
+            {
+                {"format", "json"},
+            };
+        }
+
+        private static string CreateAddSceneBody(Scene scene)
         {
             var body = new
             {
                 selection = new
                 {
                     selectionType = "registered",
-                    selectionMatch = "",
-                    includeRuntime = true,
-                    includeSettings = true,
-                    includeEvents = true
+                    selectionMatch = ""
+                },
+                functions = new[]
+                {
+                    new
+                    {
+                        type = "setHold",
+                        @params = new
+                        {
+                            holdType = "nextTransition",
+                            heatHoldTemp = scene.HeatHoldTemp,
+                            coolHoldTemp = scene.CoolHoldTemp
+                        }
+                    }
                 }
             };
-            var queryParameters = new Dictionary<string, string>()
-            {
-                {"format", "json"},
-                {"body",  JsonConvert.SerializeObject(body)}
-            };
-            return queryParameters;
+            return JsonConvert.SerializeObject(body);
         }
 
-        private async Task<IEnumerable<Domain.Entities.Thermostat>> Parse(object json)
+        private async Task<EcobeeResponsesModel> Parse(object json)
         {
             if (_settings.StoreResponse)
             {
                 await _eventLogRepository.Add(new EventLog(
                     "Ecobee", _settings.ThermostatUri, "ResponseBody", DateTime.UtcNow, _correlationId, entityObject: json));
             }
-
-            return ThermostatListParser.Parse(json);
+            return EcobeeResponseParser.Parse(json);
         }
-        
+
+        public Task RemoveAllScenes(string bearerToken, string correlationId = null)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

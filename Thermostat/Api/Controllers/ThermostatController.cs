@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Hqv.Thermostat.Api.Messages;
+using Hqv.Thermostat.Api.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,23 +16,10 @@ namespace Hqv.Thermostat.Api.Controllers
         }
 
         [HttpGet("readings")]
-        public async Task<IActionResult> GetReadings()
-        {
-            var thermostatReadings = await _mediator.Send(new GetThermostatReadingMessage());
+        public async Task<IActionResult> GetReadings(ReadingToGet model)
+        {           
+            var thermostatReadings = await _mediator.Send(model);
             return Ok(thermostatReadings);
         }      
-    }
-
-    [Route("api/thermostat/v1/hold")]
-    public class HoldController : Controller
-    {
-        private readonly IMediator _mediator;
-
-        public HoldController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        
     }
 }
