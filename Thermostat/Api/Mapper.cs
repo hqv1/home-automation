@@ -13,7 +13,8 @@ namespace Hqv.Thermostat.Api
         {
             _mapperConfiguration = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<SceneToAddModel, Scene>();
+                cfg.CreateMap<SceneToAddModel, Scene>()
+                    .ConstructUsing(s => new Scene(s.HeatHoldTemp, s.ColdHoldTemp));
             });
             _mapper = _mapperConfiguration.CreateMapper();
         }

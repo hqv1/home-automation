@@ -23,6 +23,7 @@
     <PackageReference Include="Hqv.CSharp.Common" Version="0.2.6" />
     <PackageReference Include="Hqv.CSharp.Common.Audit.Logging" Version="0.2.5" />
     <PackageReference Include="Hqv.CSharp.Common.Logging.Serilog" Version="0.2.4" />
+    <PackageReference Include="Hqv.CSharp.Common.Web" Version="0.0.8" />
     <PackageReference Include="MediatR" Version="3.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
+using Hqv.CSharp.Common.Exceptions;
 using Hqv.CSharp.Common.Validations;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
@@ -57,13 +58,13 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             var queryParameters = CreateAddSceneQueryParameter(scene);
             const string body = "";
 
-            var response = await _httpClient.PostAsyncJsonWithBearerToken<object>(
+            var response = await _httpClient.PostAsyncJsonWithBearerToken(
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
                 queryParameters: queryParameters,
                 bearerToken: bearerToken,
                 body: body,
-                parser: async json => await Parse(json));
+                parser: async json => await Parse(json));          
         }
 
         private static ICollection<KeyValuePair<string, string>> CreateAddSceneQueryParameter(Scene scene)
@@ -96,7 +97,51 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 {"body",  JsonConvert.SerializeObject(body)}
             };
         }
-        
+
+        public async Task RemoveAllScenes(string bearerToken, string correlationId = null)
+        {
+            _correlationId = correlationId;
+            var queryParameters = CreateRemoveAllScenesQueryParameter();
+            const string body = "";
+
+            var response = await _httpClient.PostAsyncJsonWithBearerToken(
+                baseUri: _settings.BaseUri,
+                relativeUri: _settings.ThermostatUri,
+                queryParameters: queryParameters,
+                bearerToken: bearerToken,
+                body: body,
+                parser: async json => await Parse(json));
+        }
+
+        private static ICollection<KeyValuePair<string, string>> CreateRemoveAllScenesQueryParameter()
+        {
+            var body = new
+            {
+                selection = new
+                {
+                    selectionType = "registered",
+                    selectionMatch = ""
+                },
+                functions = new[]
+                {
+                    new
+                    {
+                        type = "resumeProgram",
+                        @params = new
+                        {
+                            resumeAll = false
+                        }
+                    }
+                }
+            };
+
+            return new Dictionary<string, string>()
+            {
+                {"format", "json"},
+                {"body",  JsonConvert.SerializeObject(body)}
+            };
+        }
+
         private async Task<EcobeeResponsesModel> Parse(object json)
         {
             if (_settings.StoreResponse)
@@ -104,12 +149,15 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 await _eventLogRepository.Add(new EventLog(
                     "Ecobee", _settings.ThermostatUri, "ResponseBody", DateTime.UtcNow, _correlationId, entityObject: json));
             }
-            return EcobeeResponseParser.Parse(json);
-        }
+            var response = EcobeeResponseParser.Parse(json);
 
-        public Task RemoveAllScenes(string bearerToken, string correlationId = null)
-        {
-            throw new System.NotImplementedException();
+            if (response.Code != 0)
+            {
+                var exception = new HqvException("Ecobee responded not sucessful");
+                exception.Data["response"] = response;
+            }
+
+            return response;
         }
     }
 }

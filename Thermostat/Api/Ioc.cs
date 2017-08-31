@@ -1,5 +1,6 @@
 ﻿using System;
 using Hqv.CSharp.Common.Logging;
+using Hqv.CSharp.Common.Map;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Repositories;
 using Hqv.Thermostat.Api.Infrastructure;
@@ -17,6 +18,8 @@ namespace Hqv.Thermostat.Api
     {
         public static void Register(IServiceCollection services, IConfigurationRoot configuration)
         {
+            services.AddScoped<IMapper, Mapper>();
+
             RegisterLogging(services, configuration);
             RegisterDomainObjects(services);
             RegisterServices(services);
