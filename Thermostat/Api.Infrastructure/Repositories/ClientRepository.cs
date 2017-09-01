@@ -34,7 +34,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
 
         public async Task<Client> GetClient()
         {
-            const string command = "SELECT * FROM [Client] CROSS JOIN [Application]";
+            const string command = "SELECT * FROM [Thermostat].[Client] CROSS JOIN [Thermostat].[Application]";
             dynamic result = null;
 
             try
@@ -67,7 +67,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
         public async Task UpdateAuthentication(Client client, string correlationId = null)
         {
             const string command =
-                @"UPDATE [Client] SET RefreshToken = @RefreshToken, RefreshTokenExpiration = @RefreshTokenExpiration, AccessToken= @AccessToken, AccessTokenExpiration = @AccessTokenExpiration WHERE ClientID = @ClientID";
+                @"UPDATE [Thermostat].[Client] SET RefreshToken = @RefreshToken, RefreshTokenExpiration = @RefreshTokenExpiration, AccessToken= @AccessToken, AccessTokenExpiration = @AccessTokenExpiration WHERE ClientID = @ClientID";
 
             using (var connection = new SqlConnection(_settings.ConnectionString))
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

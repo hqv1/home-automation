@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Models;
 
@@ -15,6 +16,10 @@ namespace Hqv.Thermostat.Api
             {
                 cfg.CreateMap<SceneToAddModel, Scene>()
                     .ConstructUsing(s => new Scene(s.HeatHoldTemp, s.ColdHoldTemp));
+
+                cfg.CreateMap<ReadingToGetModel, GetThermostatsRequest>()
+                    .ConstructUsing(s =>
+                        new GetThermostatsRequest(s.IncludeReadings, s.IncludeSettings, s.IncludeScenes));
             });
             _mapper = _mapperConfiguration.CreateMapper();
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hqv.CSharp.Common.Map;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Extensions;
@@ -15,16 +16,19 @@ namespace Hqv.Thermostat.Api.Handlers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IEventLogger _eventLogger;
+        private readonly IMapper _mapper;
         private readonly IThermostatProvider _thermostatProvider;
         private ReadingToGetModel _message;
 
         public GetThermostatReadingHandler(
             IAuthenticationService authenticationService, 
             IEventLogger eventLogger,
+            IMapper mapper,
             IThermostatProvider thermostatProvider)
         {
             _authenticationService = authenticationService;
             _eventLogger = eventLogger;
+            _mapper = mapper;
             _thermostatProvider = thermostatProvider;
         }
 
@@ -36,7 +40,9 @@ namespace Hqv.Thermostat.Api.Handlers
             IEnumerable<Domain.Entities.Thermostat> thermostats = null;
             try
             {
-                thermostats = (await _thermostatProvider.GetThermostats(bearerToken, message.CorrelationId)).ToList();              
+                var request = _mapper.Map<GetThermostatsRequest>(message);
+                request.BearerToken = bearerToken;                
+                thermostats = (await _thermostatProvider.GetThermostats(request)).ToList();              
                 var model = thermostats.Select(Transform);
                 await StoreDomainEvent();
                 return model;
@@ -54,13 +60,13 @@ namespace Hqv.Thermostat.Api.Handlers
             {
                 CorrelationId = _message.CorrelationId,
                 Name = thermostat.Name,
-                Reading = new
+                Reading = _message.IncludeReadings ? new
                 {
                     ReadingDateTime = thermostat.Reading.DateTime,
                     Temperature = thermostat.Reading.TemperatureInF,
                     thermostat.Reading.Humidity,
-                },
-                Settings = new
+                } : null,
+                Settings = _message.IncludeSettings ? new
                 {
                     thermostat.Settings.HvacMode,
                     thermostat.Settings.DesiredHeat,
@@ -70,15 +76,15 @@ namespace Hqv.Thermostat.Api.Handlers
                     thermostat.Settings.CoolRangeHigh,
                     thermostat.Settings.CoolRangeLow,
                     thermostat.Settings.HeatCoolMinDelta
-                },
-                Scenes = thermostat.Scenes.Select(s=> new
+                } : null,
+                Scenes = _message.IncludeScenes ? thermostat.Scenes.Select(s=> new
                 {
                     s.Type,
                     s.Name,
                     s.Running,
                     s.CoolHoldTemp,
                     s.HeatHoldTemp
-                })
+                }) : null
             };
         }
 

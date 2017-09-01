@@ -40,6 +40,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
         private static ThermostatReading CreateReading(dynamic thermostatJson)
         {
             var readingJson = thermostatJson.runtime;
+            if (readingJson == null) return null;
             var readingDateTime = DateTime.Parse((string)readingJson.connectDateTime);
             var temperatureInF = (int)readingJson.actualTemperature;
             var humidity = (int)readingJson.actualHumidity;
@@ -50,16 +51,19 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
         private static ThermostatSettings CreateSettings(dynamic thermostatJson)
         {
             var settingJson = thermostatJson.settings;
+            var readingJson = thermostatJson.runtime;
+
+            if (settingJson == null || readingJson == null) return null;
+
             var hvacMode = (string) settingJson.hvacMode;
             var heatRangeHigh = (int) settingJson.heatRangeHigh;
             var heatRangeLow = (int) settingJson.heatRangeLow;
             var coolRangeHigh = (int) settingJson.coolRangeHigh;
             var coolRangeLow = (int) settingJson.coolRangeLow;
             var heatCoolMinDelta = (int) settingJson.heatCoolMinDelta;
-
-            var readingJson = thermostatJson.runtime;
-            var desiredHeat = (int) readingJson.desiredHeat;
-            var desiredCool = (int) readingJson.desiredCool;
+           
+            var desiredHeat = (int) (readingJson.desiredHeat);
+            var desiredCool = (int) (readingJson.desiredCool);
 
             return new ThermostatSettings(hvacMode, 
                 desiredHeat, desiredCool,
@@ -70,6 +74,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers
         private static IEnumerable<ThermostatScene> CreateScenes(dynamic thermostatJson)
         {
             var scenes = new List<ThermostatScene>();
+            if (thermostatJson.events == null) return null;
             var eventCount = thermostatJson.events.Count;
             foreach (int index in Enumerable.Range(0, eventCount))
             {

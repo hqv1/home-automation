@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Models
 {
-    [Table("EventLog")]
+    [Table("Thermostat.EventLog")]
     internal class EventLogModel
     {
         [Key]

@@ -24,7 +24,11 @@ namespace Hqv.Thermostat.Api.Integration.Tests.Ecobee
         [Trait("Category", "Integration")]
         public void Test()
         {
-            var thermostats = _thermostatProvider.GetThermostats(BearerToken).Result;
+            var request = new GetThermostatsRequest(true,true, true)
+            {
+                BearerToken = BearerToken
+            };
+            var thermostats = _thermostatProvider.GetThermostats(request).Result;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
         private readonly IEventLogRepository _eventLogRepository;
         private readonly IHqvHttpClient _httpClient;
         private readonly Settings _settings;
-        private string _correlationId;
+        private GetThermostatsRequest _request;
 
         public class Settings
         {
@@ -50,20 +50,20 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             _settings = settings;
         }
 
-        public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(string bearerToken, string correlationId = null)
+        public async Task<IEnumerable<Domain.Entities.Thermostat>> GetThermostats(GetThermostatsRequest request)
         {
-            _correlationId = correlationId;
+            _request = request;
             var thermostats = await _httpClient.GetAsyncWithBearerToken(
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
                 queryParameters: CreateQueryParameters(),
-                bearerToken: bearerToken,
+                bearerToken: _request.BearerToken,
                 parser: async json => await Parse(json));
 
             return thermostats;
         }
 
-        private static ICollection<KeyValuePair<string, string>> CreateQueryParameters()
+        private ICollection<KeyValuePair<string, string>> CreateQueryParameters()
         {
             var body = new
             {
@@ -71,9 +71,9 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
                 {
                     selectionType = "registered",
                     selectionMatch = "",
-                    includeRuntime = true,
-                    includeSettings = true,
-                    includeEvents = true
+                    includeRuntime = _request.IncludeReadings || _request.IncludeSettings,
+                    includeSettings = _request.IncludeSettings,
+                    includeEvents = _request.IncludeScenes
                 }
             };
             var queryParameters = new Dictionary<string, string>()
@@ -89,7 +89,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             if (_settings.StoreResponse)
             {
                 await _eventLogRepository.Add(new EventLog(
-                    "Ecobee", _settings.ThermostatUri, "ResponseBody", DateTime.UtcNow, _correlationId, entityObject: json));
+                    "Ecobee", _settings.ThermostatUri, "ResponseBody", DateTime.UtcNow, _request.CorrelationId, entityObject: json));
             }
 
             return ThermostatListParser.Parse(json);
