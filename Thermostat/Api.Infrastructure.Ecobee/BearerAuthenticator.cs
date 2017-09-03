@@ -67,72 +67,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
         {
             var authentication = client.Authentication;
             await GetTokensUsingRefreshToken(authentication);
-        }
-      
-        /// <summary>
-        /// Not working. But keeping the code just in case.
-        /// </summary>
-        private static bool IsValidRefreshToken(ClientAuthentication authentication)
-        {
-            return !string.IsNullOrEmpty(authentication.RefreshToken) &&
-                   authentication.RefreshTokenExpiration > DateTime.Now;
-        }
-
-        /// <summary>
-        /// Not working. But keeping the code just in case.
-        /// </summary>
-        private async Task GetAccessTokenUsingRefreshToken(ClientAuthentication authentication)
-        {
-            var uri = UriHelper.Create(_settings.BaseUri, _settings.TokenUri);
-            var parameters = new Dictionary<string, string>()
-            {
-                {"grant_type", "refresh_token"},
-                {"refresh_token", authentication.RefreshToken },
-                {"client_id", authentication.AppApiKey }
-            };
-            var content = new FormUrlEncodedContent(parameters);            
-            var client = new HttpClient();
-            
-            HttpResponseMessage response;
-            try
-            {
-                response = await client.PostAsync(uri, content);
-            }
-            catch (Exception ex)
-            {
-                var exception = new HqvException("Getting access token using refresh tokens failed.", ex);
-                exception.Data["uri"] = uri;
-                exception.Data["request-content"] = await content.ReadAsStringAsync();
-                throw exception;
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var exception =
-                    new HqvException($"Getting access token using refresh tokens failed with error code {response.StatusCode}");
-                exception.Data["uri"] = uri;
-                exception.Data["request-content"] = await content.ReadAsStringAsync();
-                exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
-                throw exception;
-            }
-
-            try
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                dynamic json = JsonConvert.DeserializeObject(responseContent);
-                var expiresInSeconds = (int)json.expires_in - _settings.AccessTokenExpirationFuzzyInSeconds;
-                authentication.SetAccessToken((string)json.access_token,
-                    DateTime.Now.AddSeconds(expiresInSeconds).ToUniversalTime());
-            }
-            catch (Exception ex)
-            {
-                var exception = new HqvException($"Unable to parse result from Ecobee for getting token using refresh tokens", ex);
-                exception.Data["uri"] = uri;
-                exception.Data["request-content"] = await content.ReadAsStringAsync();
-                exception.Data["response-content"] = await response.Content.ReadAsStringAsync();
-                throw exception;
-            }
-        }
+        }      
 
         private async Task GetTokensUsingRefreshToken(ClientAuthentication authentication)
         {

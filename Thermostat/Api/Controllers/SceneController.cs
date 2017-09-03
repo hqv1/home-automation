@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Hqv.CSharp.Common.Web.Api;
 using Hqv.Thermostat.Api.Models;
@@ -34,7 +33,7 @@ namespace Hqv.Thermostat.Api.Controllers
         [HttpDelete("all")]
         public async Task<IActionResult> RemoveAllScenes(ScenesAllToRemoveModel model)
         {
-            var result = await _mediator.Send(model);
+            await _mediator.Send(model);
             return NoContent();
         }
     }

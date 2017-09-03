@@ -1,4 +1,4 @@
-﻿namespace Hqv.Thermostat.Api.Domain
+﻿namespace Hqv.Thermostat.Api.Domain.Dtos
 {
     public class GetThermostatsRequest
     {
@@ -10,12 +10,11 @@
         }
 
         public string BearerToken { get; set; }
-
         public string CorrelationId { get; set; }
 
-        public bool IncludeReadings { get; set; }
-        public bool IncludeSettings { get; set; }
-        public bool IncludeScenes { get; set; }
+        public bool IncludeReadings { get; }
+        public bool IncludeSettings { get; }
+        public bool IncludeScenes { get; }
 
     }
 }

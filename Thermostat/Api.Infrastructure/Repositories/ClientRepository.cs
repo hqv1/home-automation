@@ -72,7 +72,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
             using (var connection = new SqlConnection(_settings.ConnectionString))
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var result = await connection.ExecuteAsync(command, new
+                await connection.ExecuteAsync(command, new
                 {
                     ClientID = client.ClientId,
                     RefreshToken = client.Authentication.RefreshToken,

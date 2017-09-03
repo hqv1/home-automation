@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hqv.CSharp.Common.Map;
 using Hqv.Thermostat.Api.Domain;
+using Hqv.Thermostat.Api.Domain.Dtos;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Extensions;
 using Hqv.Thermostat.Api.Models;
@@ -58,8 +59,8 @@ namespace Hqv.Thermostat.Api.Handlers
         {
             return new
             {
-                CorrelationId = _message.CorrelationId,
-                Name = thermostat.Name,
+                _message.CorrelationId,
+                thermostat.Name,
                 Reading = _message.IncludeReadings ? new
                 {
                     ReadingDateTime = thermostat.Reading.DateTime,

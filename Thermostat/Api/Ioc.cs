@@ -2,7 +2,9 @@
 using Hqv.CSharp.Common.Logging;
 using Hqv.CSharp.Common.Map;
 using Hqv.Thermostat.Api.Domain;
+using Hqv.Thermostat.Api.Domain.Helpers;
 using Hqv.Thermostat.Api.Domain.Repositories;
+using Hqv.Thermostat.Api.Domain.Services;
 using Hqv.Thermostat.Api.Infrastructure;
 using Hqv.Thermostat.Api.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -18,12 +20,11 @@ namespace Hqv.Thermostat.Api
     {
         public static void Register(IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddScoped<IMapper, Mapper>();
-
             RegisterLogging(services, configuration);
+            RegisterHostObjects(services);
             RegisterDomainObjects(services);
             RegisterServices(services);
-            RegisterInfrastructure(services, configuration);
+            RegisterEcobeeInfrastructure(services, configuration);
             RegisterRepositories(services, configuration);
             
         }
@@ -54,6 +55,11 @@ namespace Hqv.Thermostat.Api
             );
         }
 
+        private static void RegisterHostObjects(IServiceCollection services)
+        {
+            services.AddScoped<IMapper, Mapper>();
+        }
+
         private static void RegisterDomainObjects(IServiceCollection services)
         {
             services.AddScoped<IEventLogger, EventLogger>();
@@ -64,7 +70,7 @@ namespace Hqv.Thermostat.Api
             services.AddScoped<IAuthenticationService, AuthenticationService>();     
         }
 
-        private static void RegisterInfrastructure(IServiceCollection services, IConfiguration configuration)
+        private static void RegisterEcobeeInfrastructure(IServiceCollection services, IConfiguration configuration)
         {            
             services.AddScoped<Infrastructure.Ecobee.Shared.IHqvHttpClient, Infrastructure.Ecobee.Shared.HqvHttpClient>();
 

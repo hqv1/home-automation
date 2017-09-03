@@ -11,6 +11,7 @@ using Hqv.Thermostat.Api.Infrastructure.Ecobee.Models;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
 using Newtonsoft.Json;
+// ReSharper disable ArgumentsStyleNamedExpression
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
 {
@@ -58,7 +59,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             var queryParameters = CreateAddSceneQueryParameter(scene);
             const string body = "";
 
-            var response = await _httpClient.PostAsyncJsonWithBearerToken(
+            await _httpClient.PostAsyncJsonWithBearerToken(
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
                 queryParameters: queryParameters,
@@ -104,7 +105,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Ecobee
             var queryParameters = CreateRemoveAllScenesQueryParameter();
             const string body = "";
 
-            var response = await _httpClient.PostAsyncJsonWithBearerToken(
+            await _httpClient.PostAsyncJsonWithBearerToken(
                 baseUri: _settings.BaseUri,
                 relativeUri: _settings.ThermostatUri,
                 queryParameters: queryParameters,

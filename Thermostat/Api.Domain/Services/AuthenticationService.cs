@@ -5,28 +5,24 @@ using Hqv.CSharp.Common.Logging;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
 
-namespace Hqv.Thermostat.Api.Domain
+namespace Hqv.Thermostat.Api.Domain.Services
 {   
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IEcobeeAuthenticator _ecobeeAuthenticator;
         private readonly IClientRepository _clientRepository;
-        private readonly IEventLogRepository _eventLogRepository;
-        private readonly IHqvLogger _logger;
+        private readonly IEcobeeAuthenticator _ecobeeAuthenticator;
+        private readonly IEventLogger _eventLogger;
         private AuthenticateRequest _request;
         private AuthenticateResponse _response;
-        
 
         public AuthenticationService(
-            IEcobeeAuthenticator ecobeeAuthenticator, 
-            IClientRepository clientRepository,             
-            IEventLogRepository eventLogRepository,
-            IHqvLogger logger)
+            IClientRepository clientRepository,
+            IEcobeeAuthenticator ecobeeAuthenticator,
+            IEventLogger eventLogger)
         {
             _ecobeeAuthenticator = ecobeeAuthenticator;
+            _eventLogger = eventLogger;
             _clientRepository = clientRepository;
-            _eventLogRepository = eventLogRepository;
-            _logger = logger;
         }
 
         public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest request)
@@ -65,25 +61,16 @@ namespace Hqv.Thermostat.Api.Domain
 
             await _ecobeeAuthenticator.GetBearerToken(client);
             await _clientRepository.UpdateAuthentication(client, _request.CorrelationId);
+
             _response.BearerToken = client.Authentication.AccessToken;
-            await _eventLogRepository.Add(new EventLog("Client", Convert.ToString(client.ClientId), "Authenticated",
+            await _eventLogger.AddDomainEvent(new EventLog("Client", Convert.ToString(client.ClientId), "Authenticated",
                 DateTime.Now, _request.CorrelationId, entityObject: _response.BearerToken));
         }
 
         private async Task InsertAuthenticationFailed(Exception ex)
         {
-            try
-            {
-                await _eventLogRepository.Add(new EventLog("Client", Convert.ToString(_response.ClientId), "AuthenticationFailed",
-                    DateTime.Now, _request.CorrelationId, additionalMetadata: ex));
-            }
-            catch (Exception exception)
-            {
-                _logger.Error(exception, "Unable to save domain event for correlation {correlationId}",
-                    _request.CorrelationId);
-                _logger.Error(ex, "AuthenticationFailed for Client {clientId} with correlation {correlationId}",
-                    _response.ClientId, _request.CorrelationId);
-            }            
+            await _eventLogger.AddExceptionDomainEvent(new EventLog("Client", Convert.ToString(_response.ClientId),
+                "AuthenticationFailed", DateTime.Now, _request.CorrelationId, additionalMetadata: ex));
         }
     }
 }
