@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
+using Hqv.CSharp.Common.Clients;
 using Hqv.CSharp.Common.Validations;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Dtos;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee.Parsers;
-using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
 using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee

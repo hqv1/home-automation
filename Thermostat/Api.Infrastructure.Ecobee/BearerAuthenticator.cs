@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Hqv.CSharp.Common.Exceptions;
 using Hqv.CSharp.Common.Validations;
+using Hqv.CSharp.Common.Web.Client;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Entities;
-using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
 using Newtonsoft.Json;
 
 namespace Hqv.Thermostat.Api.Infrastructure.Ecobee

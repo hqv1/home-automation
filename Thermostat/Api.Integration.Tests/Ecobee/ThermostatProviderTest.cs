@@ -1,7 +1,9 @@
+using Hqv.CSharp.Common.Clients;
+using Hqv.CSharp.Common.Web.Client;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Dtos;
 using Hqv.Thermostat.Api.Infrastructure.Ecobee;
-using Hqv.Thermostat.Api.Infrastructure.Ecobee.Shared;
+
 using Xunit;
 
 namespace Hqv.Thermostat.Api.Integration.Tests.Ecobee

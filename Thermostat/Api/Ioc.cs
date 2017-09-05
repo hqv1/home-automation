@@ -1,6 +1,8 @@
 ﻿using System;
+using Hqv.CSharp.Common.Clients;
 using Hqv.CSharp.Common.Logging;
 using Hqv.CSharp.Common.Map;
+using Hqv.CSharp.Common.Web.Client;
 using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Helpers;
 using Hqv.Thermostat.Api.Domain.Repositories;
@@ -72,7 +74,7 @@ namespace Hqv.Thermostat.Api
 
         private static void RegisterEcobeeInfrastructure(IServiceCollection services, IConfiguration configuration)
         {            
-            services.AddScoped<Infrastructure.Ecobee.Shared.IHqvHttpClient, Infrastructure.Ecobee.Shared.HqvHttpClient>();
+            services.AddScoped<IHqvHttpClient, HqvHttpClient>();
 
             services.AddScoped<IEcobeeAuthenticator, Infrastructure.Ecobee.BearerAuthenticator>();
             services.AddScoped(provider => new Infrastructure.Ecobee.BearerAuthenticator.Settings(
