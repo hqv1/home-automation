@@ -12,8 +12,3 @@ services:
   sql.data:
     image: microsoft/mssql-server-linux
 
-  administrator:
-    image: administrator
-    build:
-      context: ./Administrator
-      dockerfile: Dockerfile
