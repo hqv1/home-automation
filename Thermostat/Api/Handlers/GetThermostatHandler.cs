@@ -13,15 +13,15 @@ using MediatR;
 
 namespace Hqv.Thermostat.Api.Handlers
 {
-    public class GetThermostatReadingHandler : IAsyncRequestHandler<ReadingToGetModel, object>
+    public class GetThermostatHandler : IAsyncRequestHandler<ThermostatToGetModel, IEnumerable<ThermostatModel>>
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IEventLogger _eventLogger;
         private readonly IMapper _mapper;
         private readonly IThermostatProvider _thermostatProvider;
-        private ReadingToGetModel _message;
+        private ThermostatToGetModel _message;
 
-        public GetThermostatReadingHandler(
+        public GetThermostatHandler(
             IAuthenticationService authenticationService, 
             IEventLogger eventLogger,
             IMapper mapper,
@@ -33,20 +33,19 @@ namespace Hqv.Thermostat.Api.Handlers
             _thermostatProvider = thermostatProvider;
         }
 
-        public async Task<object> Handle(ReadingToGetModel message)
+        public async Task<IEnumerable<ThermostatModel>> Handle(ThermostatToGetModel message)
         {
             _message = message;
-            var bearerToken = await _authenticationService.GetBearerToken(message.CorrelationId);
-
+            
             IEnumerable<Domain.Entities.Thermostat> thermostats = null;
             try
             {
-                var request = _mapper.Map<GetThermostatsRequest>(message);
-                request.BearerToken = bearerToken;                
+                var bearerToken = await _authenticationService.GetBearerToken(message.CorrelationId);
+                var request = CreateGetThermostatsRequest(message, bearerToken);                
                 thermostats = (await _thermostatProvider.GetThermostats(request)).ToList();              
-                var model = thermostats.Select(Transform);
+                var models = thermostats.Select(Transform);
                 await StoreDomainEvent();
-                return model;
+                return models;
             }
             catch (Exception ex)
             {              
@@ -55,38 +54,31 @@ namespace Hqv.Thermostat.Api.Handlers
             }
         }
 
-        private object Transform(Domain.Entities.Thermostat thermostat)
+        private GetThermostatsRequest CreateGetThermostatsRequest(ThermostatToGetModel message, string bearerToken)
         {
-            return new
+            var request = _mapper.Map<GetThermostatsRequest>(message);
+            request.BearerToken = bearerToken;
+            return request;
+        }
+
+        private ThermostatModel Transform(Domain.Entities.Thermostat thermostat)
+        {           
+            var model = new ThermostatModel
             {
-                _message.CorrelationId,
-                thermostat.Name,
-                Reading = _message.IncludeReadings ? new
-                {
-                    ReadingDateTime = thermostat.Reading.DateTime,
-                    Temperature = thermostat.Reading.TemperatureInF,
-                    thermostat.Reading.Humidity,
-                } : null,
-                Settings = _message.IncludeSettings ? new
-                {
-                    thermostat.Settings.HvacMode,
-                    thermostat.Settings.DesiredHeat,
-                    thermostat.Settings.DesiredCool,
-                    thermostat.Settings.HeatRangeHigh,
-                    thermostat.Settings.HeatRangeLow,
-                    thermostat.Settings.CoolRangeHigh,
-                    thermostat.Settings.CoolRangeLow,
-                    thermostat.Settings.HeatCoolMinDelta
-                } : null,
-                Scenes = _message.IncludeScenes ? thermostat.Scenes.Select(s=> new
-                {
-                    s.Type,
-                    s.Name,
-                    s.Running,
-                    s.CoolHoldTemp,
-                    s.HeatHoldTemp
-                }) : null
+                CorrelationId = _message.CorrelationId,
+                Name = thermostat.Name
             };
+
+            if (_message.IncludeReadings)
+                model.Reading = _mapper.Map<ThermostatReadingModel>(thermostat.Reading);
+
+            if (_message.IncludeSettings)
+                model.Settings = _mapper.Map<ThermostatSettingsModel>(thermostat.Settings);
+
+            if (_message.IncludeScenes)
+                model.Scenes = _mapper.Map<IEnumerable<ThermostatSceneModel>>(thermostat.Scenes);
+
+            return model;
         }
 
         private async Task StoreDomainEvent()

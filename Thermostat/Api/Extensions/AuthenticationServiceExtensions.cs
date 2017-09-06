@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Hqv.Thermostat.Api.Domain;
 
@@ -11,8 +12,7 @@ namespace Hqv.Thermostat.Api.Extensions
         {
             var response = await authenticationService.Authenticate(new AuthenticateRequest(correlationId));
             if (!response.IsValid)
-                // ReSharper disable once PossibleNullReferenceException
-                throw response.Errors.FirstOrDefault(); // Should always have an exception
+                throw new AggregateException("Authentication service has errors", response.Errors);
             return response.BearerToken;
         }
     }

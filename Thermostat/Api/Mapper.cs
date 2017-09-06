@@ -18,9 +18,15 @@ namespace Hqv.Thermostat.Api
                 cfg.CreateMap<SceneToAddModel, Scene>()
                     .ConstructUsing(s => new Scene(s.HeatHoldTemp, s.ColdHoldTemp));
 
-                cfg.CreateMap<ReadingToGetModel, GetThermostatsRequest>()
+                cfg.CreateMap<ThermostatToGetModel, GetThermostatsRequest>()
                     .ConstructUsing(s =>
                         new GetThermostatsRequest(s.IncludeReadings, s.IncludeSettings, s.IncludeScenes));
+
+                cfg.CreateMap<ThermostatReading, ThermostatReadingModel>();
+                cfg.CreateMap<ThermostatSettings, ThermostatSettingsModel>();
+                cfg.CreateMap<ThermostatScene, ThermostatSceneModel>();
+                cfg.CreateMap<Domain.Entities.Thermostat, ThermostatModel>()
+                    .ForMember(d=>d.CorrelationId, o=>o.Ignore());
             });
             _mapper = _mapperConfiguration.CreateMapper();
         }

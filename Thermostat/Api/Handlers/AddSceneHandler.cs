@@ -31,11 +31,10 @@ namespace Hqv.Thermostat.Api.Handlers
 
         public async Task<object> Handle(SceneToAddModel message)
         {
-            _message = message;
-            var bearerToken = await _authenticationService.GetBearerToken(message.CorrelationId);
+            _message = message;           
             try
             {
-
+                var bearerToken = await _authenticationService.GetBearerToken(message.CorrelationId);
                 var scene = _mapper.Map<Scene>(message);
                 await _sceneProvider.AddScene(scene, bearerToken, message.CorrelationId);
                 await StoreDomainEvent();

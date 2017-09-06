@@ -15,8 +15,8 @@ namespace Hqv.Thermostat.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("readings")]
-        public async Task<IActionResult> GetReadings(ReadingToGetModel model)
+        [HttpGet("")]
+        public async Task<IActionResult> Get(ThermostatToGetModel model)
         {           
             var thermostatReadings = await _mediator.Send(model);
             return Ok(thermostatReadings);
