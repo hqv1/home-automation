@@ -59,6 +59,7 @@ namespace Hqv.Thermostat.Api.Infrastructure.Repositories
             catch (Exception ex)
             {
                 var exception = new HqvException($"Unable to get client with command {command}", ex);
+                exception.Data["connection-string"] = _settings.ConnectionString;
                 if (result != null) exception.Data["result"] = result;
                 throw exception;
             }            

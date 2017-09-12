@@ -41,5 +41,10 @@
     <ProjectReference Include="..\Api.Infrastructure.Ecobee\Api.Infrastructure.Ecobee.csproj" />
     <ProjectReference Include="..\Api.Infrastructure\Api.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

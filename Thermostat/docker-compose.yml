@@ -2,13 +2,7 @@ version: '3'
 
 services:
   thermostat.api:
-    image: thermostat.api
+    image: hqv1/thermostat.api
     build:
       context: ./Api
       dockerfile: Dockerfile
-    depends_on:
-      - sql.data
-
-  sql.data:
-    image: microsoft/mssql-server-linux
-

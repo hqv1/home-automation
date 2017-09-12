@@ -3,13 +3,8 @@ version: '3'
 services:
   thermostat.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Development      
+    volumes:
+      - C:\DockerHome\HomeAutomation\ThermostatApi:/app/log
     ports:
       - "80"
-
-  sql.data:    
-    environment:
-      - SA_PASSWORD=Pass@word
-      - ACCEPT_EULA=Y
-    ports:
-      - "5433:1433"

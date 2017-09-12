@@ -4,7 +4,7 @@
     <ProjectGuid>dcc758ec-74ea-4d40-a2e2-39f0bb32a696</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
     <DockerServiceUrl>http://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>thermostat.api</DockerServiceName>
+    <DockerServiceName>hqv1/thermostat.api</DockerServiceName>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectVersion>2.0</ProjectVersion>
   </PropertyGroup>

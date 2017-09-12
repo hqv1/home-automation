@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Serilog;
 
 namespace Hqv.Thermostat.Api
 {
@@ -7,15 +9,29 @@ namespace Hqv.Thermostat.Api
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .UseApplicationInsights()
-                .Build();
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Error()
+                .WriteTo.File("log/global_logs.json")
+                .CreateLogger();
 
-            host.Run();
+            try
+            {
+                var host = new WebHostBuilder()
+                    .UseKestrel()
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseIISIntegration()
+                    .UseStartup<Startup>()
+                    .UseApplicationInsights()
+                    .Build();
+
+                host.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Fatal(ex, "Error on building and running host");
+                throw;
+            }
         }
     }
 }
