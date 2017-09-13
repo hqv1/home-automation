@@ -1,0 +1,122 @@
+{
+	"variables": [],
+	"info": {
+		"name": "home-automation",
+		"_postman_id": "432ac625-06f6-3c9f-9958-f388b15e023d",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{url}}/api/thermostat/v1/health",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Application health check"
+			},
+			"response": []
+		},
+		{
+			"name": "Thermostat - No Parameters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Thermostat Name\"] = jsonData[0].name === \"Home\";",
+							"tests[\"Reading does not exist\"] = jsonData[0].reading === null ;",
+							"tests[\"Settings does not exist\"] = jsonData[0].settings === null ;",
+							"tests[\"Scenes does not exist\"] = jsonData[0].scenes.length === 0 ;",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{url}}/api/thermostat/v1/thermostats",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get Thermostat"
+			},
+			"response": []
+		},
+		{
+			"name": "Thermostat - All Parameters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"tests[\"Thermostat name\"] = jsonData[0].name === \"Home\";",
+							"tests[\"Reading exist\"] = jsonData[0].reading !== null ;",
+							"tests[\"Settings exist\"] = jsonData[0].settings !== null ;",
+							"tests[\"Scenes exist\"] = jsonData[0].scenes.length >= 0 ;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{url}}/api/thermostat/v1/thermostats?IncludeReadings=true&IncludeSettings=true&IncludeScenes=true",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"thermostat",
+						"v1",
+						"thermostats"
+					],
+					"query": [
+						{
+							"key": "IncludeReadings",
+							"value": "true",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "IncludeSettings",
+							"value": "true",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "IncludeScenes",
+							"value": "true",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Get Thermostat"
+			},
+			"response": []
+		}
+	]
+}
