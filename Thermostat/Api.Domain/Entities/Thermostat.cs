@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
+using Hqv.CSharp.Common.Entities;
 
 namespace Hqv.Thermostat.Api.Domain.Entities
 {
-    public class Thermostat
+    /// <summary>
+    /// todo: to be a proper DDD entity, we need to add methods to add Reading, Settings, and Scenes and remove the sets
+    /// </summary>
+    public class Thermostat : IAggregateRoot
     {
         public Thermostat(string id, string name, string brand, string model)
         {

@@ -1,6 +1,8 @@
-﻿namespace Hqv.Thermostat.Api.Domain.Entities
+﻿using Hqv.CSharp.Common.Entities;
+
+namespace Hqv.Thermostat.Api.Domain.Entities
 {
-    public class Client
+    public class Client : IAggregateRoot
     {
         public Client(long clientId, string name, ClientAuthentication authentication = null)
         {

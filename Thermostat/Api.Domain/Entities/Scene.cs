@@ -1,6 +1,11 @@
-﻿namespace Hqv.Thermostat.Api.Domain.Entities
+﻿using Hqv.CSharp.Common.Entities;
+
+namespace Hqv.Thermostat.Api.Domain.Entities
 {
-    public class Scene
+    /// <summary>
+    /// todo: Scene should only be added through the Thermostat (DDD design). Also there's some logic on what the temp can be depending on state of Thermostat.
+    /// </summary>
+    public class Scene : IAggregateRoot
     {
         public Scene(int heatHoldTemp, int coolHoldTemp)
         {
