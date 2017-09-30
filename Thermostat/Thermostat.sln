@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{0FD1D163-08D7-45F3-82F9-F0FBBE4FD8DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "src\Api\Api.csproj", "{0FD1D163-08D7-45F3-82F9-F0FBBE4FD8DE}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{DCC758EC-74EA-4D40-A2E2-39F0BB32A696}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -14,13 +14,17 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 		{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91} = {BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Domain", "Api.Domain\Api.Domain.csproj", "{3C33D941-6075-4436-A512-F4E5651AF66B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Domain", "src\Api.Domain\Api.Domain.csproj", "{3C33D941-6075-4436-A512-F4E5651AF66B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Infrastructure.Ecobee", "Api.Infrastructure.Ecobee\Api.Infrastructure.Ecobee.csproj", "{3651E17B-70D0-433B-A687-C837F8D2AD0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Infrastructure.Ecobee", "src\Api.Infrastructure.Ecobee\Api.Infrastructure.Ecobee.csproj", "{3651E17B-70D0-433B-A687-C837F8D2AD0D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Infrastructure", "Api.Infrastructure\Api.Infrastructure.csproj", "{ECBFF83B-ACEA-4A8E-B409-7F2495930AF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Infrastructure.Data", "src\Api.Infrastructure.Data\Api.Infrastructure.Data.csproj", "{ECBFF83B-ACEA-4A8E-B409-7F2495930AF8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Tests.Unit", "Api.Tests.Unit\Api.Tests.Unit.csproj", "{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Tests.Unit", "tests\Api.Tests.Unit\Api.Tests.Unit.csproj", "{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{91302E71-FB48-447C-9A37-1D51F988AF42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8832AE45-C181-4B80-8180-36A31A6D6016}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0FD1D163-08D7-45F3-82F9-F0FBBE4FD8DE} = {91302E71-FB48-447C-9A37-1D51F988AF42}
+		{3C33D941-6075-4436-A512-F4E5651AF66B} = {91302E71-FB48-447C-9A37-1D51F988AF42}
+		{3651E17B-70D0-433B-A687-C837F8D2AD0D} = {91302E71-FB48-447C-9A37-1D51F988AF42}
+		{ECBFF83B-ACEA-4A8E-B409-7F2495930AF8} = {91302E71-FB48-447C-9A37-1D51F988AF42}
+		{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91} = {8832AE45-C181-4B80-8180-36A31A6D6016}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABFC438E-0E93-45DA-9BAC-477576610493}

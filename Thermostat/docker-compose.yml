@@ -4,5 +4,5 @@ services:
   thermostat.api:
     image: hqv1/thermostat.api
     build:
-      context: ./Api
+      context: ./src/Api
       dockerfile: Dockerfile

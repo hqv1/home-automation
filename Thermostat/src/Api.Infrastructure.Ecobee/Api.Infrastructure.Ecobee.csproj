@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Hqv.Thermostat.Api.Infrastructure.Ecobee</AssemblyName>
+    <RootNamespace>Hqv.Thermostat.Api.Infrastructure.Ecobee</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="FluentValidation" Version="7.1.1" />
+    <PackageReference Include="Hqv.CSharp.Common" Version="2.0.1" />
+    <PackageReference Include="Hqv.CSharp.Common.Web.Client" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Api.Domain\Api.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
