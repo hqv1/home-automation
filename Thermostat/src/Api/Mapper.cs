@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Hqv.Thermostat.Api.Domain;
 using Hqv.Thermostat.Api.Domain.Dtos;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Models;

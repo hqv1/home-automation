@@ -55,8 +55,7 @@ namespace Hqv.Thermostat.Api
                 //see validation in one place, rather than in attributes and in code. 
                 .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<Startup>())
                 ;
-            ;
-            
+
             services.AddMediatR(typeof(GetThermostatHandler)); // Add MediatR
 
             // Register the Swagger generator, defining one or more Swagger documents
