@@ -12,7 +12,7 @@ node('windows') {
 	}
 	
 	stage('unit test') {
-		dir("Thermostat/Api.Tests.Unit") {
+		dir("Thermostat/tests/Api.Tests.Unit") {
             bat 'dotnet test --filter Category=Unit'
         }
 	}
