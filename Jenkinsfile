@@ -26,7 +26,7 @@ node('windows') {
 	
 	stage('integration tests') {
 		dir("Thermostat") {            
-            bat "newman run ${workspace}/Thermostat/Api/Postman/home-automation.postman_collection.json -e ${config_path}Staging.postman_environment.json"
+            bat "newman run ${workspace}/Thermostat/tests/Api/Postman/home-automation.postman_collection.json -e ${config_path}Staging.postman_environment.json"
         }
 	}
 	
