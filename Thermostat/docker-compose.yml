@@ -2,7 +2,7 @@ version: '3'
 
 services:
   thermostat.api:
-    image: hqv1/thermostat.api:v1
+    image: "hqv1/thermostat.api:${THERMOSTAT-API-VERSION}"
     build:
       context: ./src/Api
       dockerfile: Dockerfile
