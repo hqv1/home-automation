@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{91302E71-FB4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8832AE45-C181-4B80-8180-36A31A6D6016}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Infrastructure.Redis", "..\Api.Infrastructure.Redis\Api.Infrastructure.Redis.csproj", "{104BC24A-8FD6-422C-AC67-C2F184049B7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCD6BDFD-DF5D-4013-97C0-0825D21F2E91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{104BC24A-8FD6-422C-AC67-C2F184049B7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{104BC24A-8FD6-422C-AC67-C2F184049B7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{104BC24A-8FD6-422C-AC67-C2F184049B7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{104BC24A-8FD6-422C-AC67-C2F184049B7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

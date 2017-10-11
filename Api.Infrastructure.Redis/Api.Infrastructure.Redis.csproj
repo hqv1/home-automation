@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Hqv.Thermostat.Api.Infrastructure.Redis</AssemblyName>
+    <RootNamespace>Hqv.Thermostat.Api.Infrastructure.Redis</RootNamespace>
+  </PropertyGroup>
+
+</Project>

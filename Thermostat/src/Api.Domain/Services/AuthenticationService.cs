@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Hqv.CSharp.Common.Exceptions;
-using Hqv.CSharp.Common.Logging;
 using Hqv.Thermostat.Api.Domain.Entities;
 using Hqv.Thermostat.Api.Domain.Repositories;
 
@@ -20,9 +19,9 @@ namespace Hqv.Thermostat.Api.Domain.Services
             IEcobeeAuthenticator ecobeeAuthenticator,
             IEventLogger eventLogger)
         {
+            _clientRepository = clientRepository;
             _ecobeeAuthenticator = ecobeeAuthenticator;
             _eventLogger = eventLogger;
-            _clientRepository = clientRepository;
         }
 
         public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest request)
@@ -68,7 +67,7 @@ namespace Hqv.Thermostat.Api.Domain.Services
         }
 
         private async Task InsertAuthenticationFailed(Exception ex)
-        {
+        {                       
             await _eventLogger.AddExceptionDomainEvent(new EventLog("Client", Convert.ToString(_response.ClientId),
                 "AuthenticationFailed", DateTime.Now, _request.CorrelationId, additionalMetadata: ex));
         }
