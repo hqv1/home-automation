@@ -40,6 +40,7 @@
     <ProjectReference Include="..\Api.Domain\Api.Domain.csproj" />
     <ProjectReference Include="..\Api.Infrastructure.Data\Api.Infrastructure.Data.csproj" />
     <ProjectReference Include="..\Api.Infrastructure.Ecobee\Api.Infrastructure.Ecobee.csproj" />
+    <ProjectReference Include="..\Api.Infrastructure.Redis\Api.Infrastructure.Redis.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.json">

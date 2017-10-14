@@ -9,6 +9,7 @@ using Hqv.Thermostat.Api.Domain.Repositories;
 using Hqv.Thermostat.Api.Domain.Services;
 using Hqv.Thermostat.Api.Infrastructure.Data;
 using Hqv.Thermostat.Api.Infrastructure.Data.Repositories;
+using Hqv.Thermostat.Api.Infrastructure.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -26,9 +27,9 @@ namespace Hqv.Thermostat.Api
             RegisterHostObjects(services);
             RegisterDomainObjects(services);
             RegisterServices(services);
+            RegisterCache(services,configuration);
             RegisterEcobeeInfrastructure(services, configuration);
-            RegisterRepositories(services, configuration);
-            
+            RegisterRepositories(services, configuration);            
         }
 
         private static void RegisterLogging(IServiceCollection services, IConfiguration configuration)
@@ -72,6 +73,14 @@ namespace Hqv.Thermostat.Api
             services.AddScoped<IAuthenticationService, AuthenticationService>();     
         }
 
+        private static void RegisterCache(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddScoped<IAuthenticationCache, AuthenticationCache>();
+            services.AddScoped(provider => new RedisConnection(configuration["redis:connection-string"]));
+            services.AddScoped(provider => new AuthenticationCache.Settings(
+                Convert.ToInt32(configuration["redis:auth-token-timeout-in-secs"])));
+        }
+
         private static void RegisterEcobeeInfrastructure(IServiceCollection services, IConfiguration configuration)
         {            
             services.AddScoped<IHqvHttpClient, HqvHttpClient>();
@@ -97,11 +106,11 @@ namespace Hqv.Thermostat.Api
         private static void RegisterRepositories(IServiceCollection services, IConfiguration configuration)
         {            
             services.AddScoped<IClientRepository, ClientRepository>();
-            services.AddScoped(provider => new ClientRepository.Settings(configuration["connection-string"]));
+            services.AddScoped(provider => new ClientRepository.Settings(configuration["data:connection-string"]));
 
             services.AddScoped<IEventLogDatabaseRepository, EventLogRepository>();
             services.AddScoped<IEventLogRepository, EventLogRepository>();
-            services.AddScoped(provider => new EventLogRepository.Settings(configuration["connection-string"]));
+            services.AddScoped(provider => new EventLogRepository.Settings(configuration["data:connection-string"]));
         }
     }
 }
